@@ -341,8 +341,8 @@
     <div style="display:flex;gap:8px;">
       <button id="btn-apply-preset">Apply ke Semua Row</button>
       <button id="btn-add">+ Tambah Produk</button>
-      <label class="btn-upload" for="file-import" title="Upload CSV (kolom: SKU, Nama Produk, Purchase)">Upload CSV</label>
-      <input type="file" id="file-import" accept=".csv,text/csv" style="display:none" />
+      <label class="btn-upload" for="file-import" title="Upload CSV/Excel. Kolom: SKU (opsional), Nama Produk, Harga Barang">Upload File</label>
+      <input type="file" id="file-import" accept=".csv,.xlsx,.xls,text/csv" style="display:none" />
       <button id="btn-export" class="primary">Export CSV</button>
     </div>
   </div>
@@ -355,9 +355,9 @@
         <th rowspan="2" class="col-action"></th>
         <th rowspan="2">Nama Produk</th>
         <th rowspan="2">SKU</th>
-        <th rowspan="2" style="color:var(--red);">Purchase</th>
+        <th rowspan="2" style="color:var(--red);">Harga Barang</th>
         <th rowspan="2">Operational</th>
-        <th rowspan="2">CoGS</th>
+        <th rowspan="2">HPP</th>
         <th rowspan="2">Margin %</th>
         <th rowspan="2">Harga Jual Target</th>
         <th colspan="2" class="group-header">Promotion Set</th>
@@ -395,6 +395,7 @@
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
 // ==========================================================================
 // AUTH LAYER
@@ -713,7 +714,7 @@
 
   // ── CSV EXPORT ────────────────────────────────────────────────────────────
   function exportCSV() {
-    const H = ["SKU","Nama Produk","Purchase","Set Price (Final)"];
+    const H = ["SKU","Nama Produk","Harga Barang","Set Price (Final)"];
     const data = state.rows.map((r) => {
       const c = compute(r);
       return [r.sku || "", r.name || "", Math.round(r.purchase || 0), Math.round(c.setPrice || 0)];
@@ -783,9 +784,9 @@
     };
     const skuIdx      = findIdx("sku");
     const nameIdx     = findIdx("nama", "name", "produk", "product");
-    const purchaseIdx = findIdx("purchase", "harga beli", "buy");
+    const purchaseIdx = findIdx("purchase", "harga barang", "harga beli", "buy", "price");
     if (nameIdx < 0 && purchaseIdx < 0) {
-      alert("Format CSV tidak dikenali.\nHeader wajib mengandung minimal kolom: SKU, Nama Produk, Purchase");
+      alert("Format tidak dikenali.\nHeader wajib mengandung minimal:\n- Nama Produk (atau: nama, name, produk)\n- Harga Barang (atau: purchase, harga beli)\nKolom SKU opsional.");
       return;
     }
     const imported = [];
@@ -816,14 +817,38 @@
   document.getElementById("file-import").addEventListener("change", function (e) {
     const file = e.target.files && e.target.files[0];
     if (!file) return;
+    const name = file.name.toLowerCase();
+    const isExcel = name.endsWith(".xlsx") || name.endsWith(".xls");
     const reader = new FileReader();
-    reader.onload = function (ev) {
-      try { importCSV(String(ev.target.result || "")); }
-      catch (err) { console.error(err); alert("Gagal membaca CSV: " + err.message); }
-      e.target.value = ""; // allow re-uploading the same file
-    };
-    reader.onerror = function () { alert("Gagal membaca file."); };
-    reader.readAsText(file);
+    if (isExcel) {
+      reader.onload = function (ev) {
+        try {
+          const wb = XLSX.read(ev.target.result, { type: "array" });
+          const ws = wb.Sheets[wb.SheetNames[0]];
+          const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: "" });
+          if (!rows.length) { alert("Sheet Excel kosong."); return; }
+          // Convert to CSV-like text for reuse in importCSV
+          const csvText = rows.map(row =>
+            row.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(",")
+          ).join("\n");
+          importCSV(csvText);
+        } catch (err) {
+          console.error(err);
+          alert("Gagal membaca Excel: " + err.message);
+        }
+        e.target.value = "";
+      };
+      reader.onerror = function () { alert("Gagal membaca file Excel."); };
+      reader.readAsArrayBuffer(file);
+    } else {
+      reader.onload = function (ev) {
+        try { importCSV(String(ev.target.result || "")); }
+        catch (err) { console.error(err); alert("Gagal membaca CSV: " + err.message); }
+        e.target.value = "";
+      };
+      reader.onerror = function () { alert("Gagal membaca file."); };
+      reader.readAsText(file);
+    }
   });
 
   // ── CLOUD PERSISTENCE (Supabase) ──────────────────────────────────────────
