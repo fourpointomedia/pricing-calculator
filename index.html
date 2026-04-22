@@ -257,7 +257,7 @@
     </div>
     <h2>Pricing Calculator</h2>
     <p class="sub">4.0 Media Indonesia</p>
-    <input type="email" id="login-email" placeholder="Email" required autocomplete="username" />
+    <input type="text" id="login-username" placeholder="Username" required autocomplete="username" autocapitalize="none" spellcheck="false" />
     <input type="password" id="login-password" placeholder="Password" required autocomplete="current-password" />
     <button type="submit" class="primary">Masuk</button>
     <div class="login-error" id="login-error"></div>
@@ -423,7 +423,9 @@
   async function enterApp(user) {
     window.__currentUser = user;
     const meta = user.user_metadata || {};
-    $("user-name").textContent = meta.display_name || meta.full_name || user.email;
+    // Fallback: strip @pricing.app domain so header shows only username
+    const fallbackName = (user.email || "").replace(/@pricing\.app$/, "");
+    $("user-name").textContent = meta.display_name || meta.full_name || fallbackName;
     $("login-overlay").style.display = "none";
     $("app").style.display = "";
     if (window.__initCalc) await window.__initCalc();
@@ -438,11 +440,17 @@
   $("login-form").addEventListener("submit", async (e) => {
     e.preventDefault();
     showLoginError("Memproses...", true);
-    const email = $("login-email").value.trim();
+    const username = $("login-username").value.trim().toLowerCase();
     const password = $("login-password").value;
+    // Username is auto-converted to email internally (transparent to client)
+    const email = username.includes("@") ? username : (username + "@pricing.app");
     const { data, error } = await sb.auth.signInWithPassword({ email, password });
     if (error) {
-      showLoginError(error.message || "Login gagal. Periksa email dan password.", false);
+      // Rewrite Supabase's email-centric errors to be username-friendly
+      let msg = error.message || "Login gagal.";
+      msg = msg.replace(/email/gi, "username");
+      if (/invalid/i.test(msg)) msg = "Username atau password salah.";
+      showLoginError(msg, false);
       return;
     }
     showLoginError("", false);
