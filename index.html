@@ -260,6 +260,27 @@
   .breadcrumb span { color: var(--text-1); }
   .header-right { display: flex; align-items: center; gap: 10px; }
 
+  /* Editable store name in header */
+  .store-name[data-editing="true"] {
+    outline: none;
+    border-bottom: 1.5px solid var(--accent);
+    background: var(--input-bg);
+    border-radius: 4px 4px 0 0;
+    padding: 2px 6px;
+    caret-color: var(--accent);
+    cursor: text;
+    min-width: 60px;
+  }
+  .store-name:not([data-editing="true"]):hover {
+    cursor: pointer;
+  }
+  .store-name:not([data-editing="true"]):hover::after {
+    content: " ✏";
+    font-size: 11px;
+    color: var(--text-2);
+    font-weight: 400;
+  }
+
   /* ============ PARAMETER BAR ============ */
   .param-bar {
     display: flex;
@@ -902,7 +923,7 @@
     <header class="header">
       <div class="header-left">
         <div class="store-info">
-          <div class="store-name" id="active-store-name">Toko 1</div>
+          <div class="store-name" id="active-store-name" contenteditable="false" spellcheck="false" title="Klik untuk edit nama toko">Toko 1</div>
           <div class="breadcrumb">E-Commerce &nbsp;/&nbsp; <span id="active-sheet-name">Semua Produk</span></div>
         </div>
       </div>
@@ -1342,8 +1363,12 @@
   function renderHeader() {
     const st = getActiveStore();
     const sh = getActiveSheet();
-    document.getElementById("active-store-name").textContent = st ? st.name : "—";
-    document.getElementById("active-sheet-name").textContent = sh ? sh.name : "—";
+    const nameEl = document.getElementById("active-store-name");
+    if (nameEl && nameEl.getAttribute("data-editing") !== "true") {
+      nameEl.textContent = st ? st.name : "—";
+    }
+    const sheetEl = document.getElementById("active-sheet-name");
+    if (sheetEl) sheetEl.textContent = sh ? sh.name : "—";
   }
 
   function renderCatTabs() {
@@ -1422,9 +1447,11 @@
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td class="col-remove"><button class="remove-btn" data-act="del" data-idx="${i}" title="Hapus">×</button></td>
-      <td class="col-name" style="display:flex;align-items:center;gap:4px;padding:6px 6px;">
-        <input type="checkbox" class="row-cb" data-i="${i}" ${selectedIdxs.has(i) ? "checked" : ""} style="accent-color:var(--accent);cursor:pointer;width:13px;height:13px;flex-shrink:0;" />
-        <input class="cell-input name" data-f="name" data-i="${i}" value="${esc(r.name)}" placeholder="Nama produk…" style="flex:1;min-width:0;" />
+      <td class="col-name">
+        <div style="display:flex;align-items:center;gap:4px;padding:0 0;">
+          <input type="checkbox" class="row-cb" data-i="${i}" ${selectedIdxs.has(i) ? "checked" : ""} style="accent-color:var(--accent);cursor:pointer;width:13px;height:13px;flex-shrink:0;" />
+          <input class="cell-input name" data-f="name" data-i="${i}" value="${esc(r.name)}" placeholder="Nama produk…" style="flex:1;min-width:0;" />
+        </div>
       </td>
       <td class="col-sku"><input class="cell-input sku" data-f="sku" data-i="${i}" value="${esc(r.sku)}" placeholder="SKU…" /></td>
       <td class="col-harga"><input class="cell-input price" type="number" data-f="purchase" data-i="${i}" value="${r.purchase||""}" min="0" step="500" placeholder="0" /></td>
@@ -1760,6 +1787,52 @@
     sh.currentPage = Math.min(sh.currentPage, Math.max(1, Math.ceil(sh.rows.length / PAGE_SIZE)));
     renderTable(); renderPager(); updateSummary(); persist();
   });
+
+  // ── Inline-edit store name in header ────────────────────────────────────
+  (function () {
+    const el = document.getElementById("active-store-name");
+    if (!el) return;
+
+    function startEdit() {
+      const st = getActiveStore(); if (!st) return;
+      el.setAttribute("contenteditable", "true");
+      el.setAttribute("data-editing", "true");
+      el.focus();
+      // Select all text
+      const range = document.createRange();
+      range.selectNodeContents(el);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+    }
+
+    function commitEdit() {
+      const newName = el.textContent.trim();
+      el.setAttribute("contenteditable", "false");
+      el.removeAttribute("data-editing");
+      const st = getActiveStore(); if (!st) return;
+      if (newName && newName !== st.name) {
+        st.name = newName;
+        el.textContent = newName;
+        renderSidebar();   // update sidebar initials
+        persist();
+      } else {
+        el.textContent = st.name; // restore if empty or unchanged
+      }
+    }
+
+    el.addEventListener("click",    startEdit);
+    el.addEventListener("blur",     commitEdit);
+    el.addEventListener("keydown", (e) => {
+      if (e.key === "Enter")  { e.preventDefault(); el.blur(); }
+      if (e.key === "Escape") {
+        const st = getActiveStore();
+        if (st) el.textContent = st.name;
+        el.setAttribute("contenteditable", "false");
+        el.removeAttribute("data-editing");
+      }
+    });
+  })();
 
   // Hover-X: delete store
   document.getElementById("store-list").addEventListener("click", (e) => {
