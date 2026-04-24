@@ -132,6 +132,22 @@
     background: var(--accent);
     border-radius: 0 3px 3px 0;
   }
+  /* Hover-delete X on store buttons */
+  .store-btn .del-x {
+    position: absolute;
+    top: -5px; right: -5px;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: var(--accent-warn);
+    color: #fff;
+    font-size: 10px; font-weight: 700; line-height: 1;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none;
+    transition: opacity .15s;
+    z-index: 10;
+  }
+  .store-btn:hover .del-x { opacity: 1; pointer-events: auto; }
+
   .store-btn .tooltip {
     position: absolute;
     left: calc(100% + 12px);
@@ -467,6 +483,34 @@
   .col-preorder, .col-ongkir, .col-promo { min-width: 52px; max-width: 60px; text-align: right; }
   .col-roas      { min-width: 48px; max-width: 54px; text-align: right; }
   .col-mktpct    { min-width: 58px; text-align: right; }
+  /* Bulk-select checkbox in col-name */
+  .col-name .master-cb,
+  .col-name .row-cb {
+    accent-color: var(--accent);
+    cursor: pointer;
+    width: 13px; height: 13px;
+    flex-shrink: 0;
+    margin-right: 5px;
+  }
+  .col-name td-inner {
+    display: flex; align-items: center;
+  }
+  /* Bulk trash button in toolbar */
+  .btn-bulk-del {
+    display: none;
+    align-items: center;
+    gap: 5px;
+    padding: 7px 12px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--accent-warn);
+    background: rgba(255,122,122,.08);
+    color: var(--accent-warn);
+    font-size: 12px; font-weight: 600;
+    cursor: pointer; transition: all .15s;
+  }
+  .btn-bulk-del.visible { display: inline-flex; }
+  .btn-bulk-del:hover { background: rgba(255,122,122,.18); }
+
   /* Allow header text to wrap for long column names so columns stay compact */
   thead th.col-discount, thead th.col-voucher, thead th.col-layanan,
   thead th.col-preorder, thead th.col-ongkir,  thead th.col-promo,
@@ -642,6 +686,25 @@
     border-color: transparent;
   }
   .cat-tab-add:hover { color: var(--accent); background: var(--accent-soft); border-color: transparent; }
+
+  /* Hover-delete X on sheet tabs */
+  .cat-tab { position: relative; }
+  .cat-tab .del-tab {
+    position: absolute;
+    top: 2px; right: 3px;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--accent-warn);
+    color: #fff;
+    font-size: 9px; font-weight: 700; line-height: 1;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none;
+    transition: opacity .15s;
+    z-index: 5;
+  }
+  .cat-tab:hover .del-tab { opacity: 1; pointer-events: auto; }
+  .cat-tab.active .del-tab { opacity: 0; }
+  .cat-tab.active:hover .del-tab { opacity: 0.7; }
 
   /* Pagination on far right of sheet row */
   .pager {
@@ -937,6 +1000,9 @@
           </div>
         </div>
       </div>
+      <button class="btn-bulk-del" id="btn-bulk-del" title="Hapus produk yang dipilih">
+        🗑 Hapus (<span id="sel-count">0</span>)
+      </button>
       <div class="spacer"></div>
       <button class="btn btn-ghost" id="btn-apply-preset">Apply ke Semua Row</button>
       <button class="btn btn-ghost" id="btn-add">+ Tambah Produk</button>
@@ -965,7 +1031,7 @@
           </tr>
           <tr class="col-row">
             <th class="col-remove"></th>
-            <th class="col-name">Nama Produk</th>
+            <th class="col-name"><input type="checkbox" class="master-cb" id="cb-all" title="Pilih semua" /> Nama Produk</th>
             <th class="col-sku">SKU</th>
             <th class="col-harga">Harga Barang</th>
             <th class="col-operational">Operational</th>
@@ -1109,7 +1175,8 @@
   const PPN = 0.11;
   const PAGE_SIZE = 100;
   const MAX_STORES = 3;
-  const MAX_SHEETS = 10;
+  const MAX_SHEETS = 3;
+  const MAX_PAGES  = 5;   // max 5 pages per sheet = 500 rows per sheet
 
   // ── State ────────────────────────────────────────────────────────────────
   const state = {
@@ -1120,6 +1187,7 @@
     sortCol: null,
     sortDir: "asc",
   };
+  let selectedIdxs = new Set(); // absolute indexes within sh.rows for current sheet
 
   function uid(pref) { return pref + "_" + Math.random().toString(36).slice(2, 9); }
 
@@ -1231,7 +1299,7 @@
       });
     }
     const total = rows.length;
-    const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+    const pages = Math.min(MAX_PAGES, Math.max(1, Math.ceil(total / PAGE_SIZE)));
     if (sh.currentPage > pages) sh.currentPage = pages;
     if (sh.currentPage < 1) sh.currentPage = 1;
     const start = (sh.currentPage - 1) * PAGE_SIZE;
@@ -1241,6 +1309,8 @@
 
   // ── Render ───────────────────────────────────────────────────────────────
   function render() {
+    selectedIdxs.clear();     // reset selection on any full re-render
+    updateBulkUI();
     renderSidebar();
     renderHeader();
     renderCatTabs();
@@ -1260,12 +1330,11 @@
       const btn = document.createElement("button");
       btn.className = "store-btn" + (st.id === state.activeStoreId ? " active" : "");
       btn.dataset.storeId = st.id;
-      btn.title = "Klik kanan untuk rename/hapus";
+      btn.title = "Double-click untuk rename";
       const initials = (st.name || ("T"+(idx+1))).split(" ").map(w => w[0]).join("").slice(0,2).toUpperCase();
-      btn.innerHTML = `${esc(initials)}<span class="tooltip">${esc(st.name)}</span>`;
+      btn.innerHTML = `${esc(initials)}<span class="tooltip">${esc(st.name)}</span><span class="del-x" data-del-store="${st.id}" title="Hapus toko">×</span>`;
       wrap.appendChild(btn);
     });
-    // hide "+" if at max
     const addBtn = document.getElementById("btn-add-store");
     if (addBtn) addBtn.style.display = state.stores.length >= MAX_STORES ? "none" : "";
   }
@@ -1285,8 +1354,8 @@
       const tab = document.createElement("div");
       tab.className = "cat-tab" + (sh.id === st.activeSheetId ? " active" : "");
       tab.dataset.sheetId = sh.id;
-      tab.title = "Klik kanan untuk rename/hapus";
-      tab.textContent = sh.name;
+      tab.title = "Double-click untuk rename";
+      tab.innerHTML = `${esc(sh.name)}<span class="del-tab" data-del-sheet="${sh.id}" title="Hapus sheet">×</span>`;
       wrap.appendChild(tab);
     });
     if (st.sheets.length < MAX_SHEETS) {
@@ -1353,7 +1422,10 @@
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td class="col-remove"><button class="remove-btn" data-act="del" data-idx="${i}" title="Hapus">×</button></td>
-      <td class="col-name"><input class="cell-input name" data-f="name" data-i="${i}" value="${esc(r.name)}" placeholder="Nama produk…" /></td>
+      <td class="col-name" style="display:flex;align-items:center;gap:4px;padding:6px 6px;">
+        <input type="checkbox" class="row-cb" data-i="${i}" ${selectedIdxs.has(i) ? "checked" : ""} style="accent-color:var(--accent);cursor:pointer;width:13px;height:13px;flex-shrink:0;" />
+        <input class="cell-input name" data-f="name" data-i="${i}" value="${esc(r.name)}" placeholder="Nama produk…" style="flex:1;min-width:0;" />
+      </td>
       <td class="col-sku"><input class="cell-input sku" data-f="sku" data-i="${i}" value="${esc(r.sku)}" placeholder="SKU…" /></td>
       <td class="col-harga"><input class="cell-input price" type="number" data-f="purchase" data-i="${i}" value="${r.purchase||""}" min="0" step="500" placeholder="0" /></td>
       <td class="col-operational">
@@ -1439,6 +1511,7 @@
 
   // ── Store switcher / rename / delete ────────────────────────────────────
   document.getElementById("store-list").addEventListener("click", (e) => {
+    if (e.target.closest(".del-x")) return; // handled by hover-X handler below
     const btn = e.target.closest(".store-btn"); if (!btn) return;
     state.activeStoreId = btn.dataset.storeId;
     render(); persist();
@@ -1451,23 +1524,7 @@
     if (nn != null) { const v = nn.trim(); if (v) { st.name = v; render(); persist(); } }
   });
 
-  document.getElementById("store-list").addEventListener("contextmenu", (e) => {
-    const btn = e.target.closest(".store-btn"); if (!btn) return;
-    e.preventDefault();
-    const st = getStore(btn.dataset.storeId); if (!st) return;
-    const choice = prompt(`Toko "${st.name}"\n\nKetik:\n  r = Rename\n  d = Hapus\n  (kosongkan utk batal)`, "");
-    if (choice === "r") {
-      const nn = prompt("Nama baru:", st.name);
-      if (nn && nn.trim()) { st.name = nn.trim(); render(); persist(); }
-    } else if (choice === "d") {
-      if (state.stores.length <= 1) { alert("Minimal 1 toko."); return; }
-      if (!confirm(`Hapus toko "${st.name}" beserta semua sheet-nya?`)) return;
-      const idx = state.stores.findIndex(s => s.id === st.id);
-      state.stores.splice(idx, 1);
-      if (state.activeStoreId === st.id) state.activeStoreId = state.stores[0].id;
-      render(); persist();
-    }
-  });
+  // (right-click context menu removed — use hover X button to delete, double-click to rename)
 
   document.getElementById("btn-add-store").addEventListener("click", () => {
     if (state.stores.length >= MAX_STORES) { alert(`Maksimal ${MAX_STORES} toko.`); return; }
@@ -1481,6 +1538,7 @@
 
   // ── Sheet (category) switcher / rename / delete / add ───────────────────
   document.getElementById("cat-tabs").addEventListener("click", (e) => {
+    if (e.target.closest(".del-tab")) return; // handled by hover-X handler below
     const st = getActiveStore(); if (!st) return;
     if (e.target.id === "btn-add-sheet") {
       if (st.sheets.length >= MAX_SHEETS) { alert(`Maksimal ${MAX_SHEETS} sheet.`); return; }
@@ -1505,31 +1563,17 @@
     if (nn != null) { const v = nn.trim(); if (v) { sh.name = v; render(); persist(); } }
   });
 
-  document.getElementById("cat-tabs").addEventListener("contextmenu", (e) => {
-    const st = getActiveStore(); if (!st) return;
-    const tab = e.target.closest(".cat-tab[data-sheet-id]"); if (!tab) return;
-    e.preventDefault();
-    const sh = st.sheets.find(s => s.id === tab.dataset.sheetId); if (!sh) return;
-    const choice = prompt(`Sheet "${sh.name}"\n\nKetik:\n  r = Rename\n  d = Hapus\n  (kosongkan utk batal)`, "");
-    if (choice === "r") {
-      const nn = prompt("Nama baru:", sh.name);
-      if (nn && nn.trim()) { sh.name = nn.trim(); render(); persist(); }
-    } else if (choice === "d") {
-      if (st.sheets.length <= 1) { alert("Minimal 1 sheet."); return; }
-      if (!confirm(`Hapus sheet "${sh.name}" beserta semua baris di dalamnya?`)) return;
-      const idx = st.sheets.findIndex(s => s.id === sh.id);
-      st.sheets.splice(idx, 1);
-      if (st.activeSheetId === sh.id) st.activeSheetId = st.sheets[0].id;
-      render(); persist();
-    }
-  });
+  // (right-click context menu removed — use hover X button to delete, double-click to rename)
 
   // ── Toolbar buttons ──────────────────────────────────────────────────────
   document.getElementById("btn-add").addEventListener("click", () => {
     const sh = getActiveSheet(); if (!sh) return;
+    if (sh.rows.length >= MAX_PAGES * PAGE_SIZE) {
+      alert(`Sheet ini sudah penuh (maks ${MAX_PAGES * PAGE_SIZE} baris = ${MAX_PAGES} halaman). Tambah sheet baru.`);
+      return;
+    }
     sh.rows.push(makeRow());
-    // jump to last page
-    sh.currentPage = Math.max(1, Math.ceil(sh.rows.length / PAGE_SIZE));
+    sh.currentPage = Math.min(MAX_PAGES, Math.max(1, Math.ceil(sh.rows.length / PAGE_SIZE)));
     renderTable(); renderPager(); updateSummary(); persist();
   });
 
@@ -1670,6 +1714,81 @@
     const btn = document.getElementById("filter-btn");
     if (btn) btn.classList.toggle("active", state.filterStatus !== "all");
   }
+
+  // ── Bulk-select helpers ──────────────────────────────────────────────────
+  function updateBulkUI() {
+    const n = selectedIdxs.size;
+    const trashBtn = document.getElementById("btn-bulk-del");
+    const countEl  = document.getElementById("sel-count");
+    const masterCb = document.getElementById("cb-all");
+    if (trashBtn) trashBtn.classList.toggle("visible", n > 0);
+    if (countEl)  countEl.textContent = n;
+    if (masterCb) {
+      const sh = getActiveSheet();
+      const total = sh ? sh.rows.length : 0;
+      masterCb.indeterminate = n > 0 && n < total;
+      masterCb.checked = total > 0 && n >= total;
+    }
+  }
+
+  // Master checkbox
+  document.getElementById("cb-all").addEventListener("change", function () {
+    const sh = getActiveSheet(); if (!sh) return;
+    if (this.checked) sh.rows.forEach((_, i) => selectedIdxs.add(i));
+    else selectedIdxs.clear();
+    renderTable(); updateBulkUI();
+  });
+
+  // Row checkbox delegation (inside tbody)
+  document.getElementById("rows").addEventListener("change", function (e) {
+    if (!e.target.classList.contains("row-cb")) return;
+    const i = +e.target.dataset.i;
+    if (e.target.checked) selectedIdxs.add(i);
+    else selectedIdxs.delete(i);
+    updateBulkUI();
+  });
+
+  // Bulk delete button
+  document.getElementById("btn-bulk-del").addEventListener("click", function () {
+    if (!selectedIdxs.size) return;
+    if (!confirm(`Hapus ${selectedIdxs.size} produk yang dipilih?`)) return;
+    const sh = getActiveSheet(); if (!sh) return;
+    const sortedDesc = [...selectedIdxs].sort((a, b) => b - a);
+    sortedDesc.forEach(i => sh.rows.splice(i, 1));
+    selectedIdxs.clear();
+    updateBulkUI();
+    sh.currentPage = Math.min(sh.currentPage, Math.max(1, Math.ceil(sh.rows.length / PAGE_SIZE)));
+    renderTable(); renderPager(); updateSummary(); persist();
+  });
+
+  // Hover-X: delete store
+  document.getElementById("store-list").addEventListener("click", (e) => {
+    const x = e.target.closest(".del-x"); if (!x) return;
+    e.stopPropagation();
+    const storeId = x.dataset.delStore; if (!storeId) return;
+    const st = getStore(storeId); if (!st) return;
+    if (state.stores.length <= 1) { alert("Minimal 1 toko."); return; }
+    if (!confirm(`Hapus toko "${st.name}" beserta semua sheet dan datanya?`)) return;
+    const idx = state.stores.findIndex(s => s.id === storeId);
+    state.stores.splice(idx, 1);
+    if (state.activeStoreId === storeId) state.activeStoreId = state.stores[0].id;
+    render(); persist();
+  });
+
+  // Hover-X: delete sheet
+  document.getElementById("cat-tabs").addEventListener("click", (e) => {
+    const x = e.target.closest(".del-tab"); if (!x) return;
+    e.stopPropagation();
+    const st = getActiveStore(); if (!st) return;
+    const sheetId = x.dataset.delSheet; if (!sheetId) return;
+    const sh = st.sheets.find(s => s.id === sheetId); if (!sh) return;
+    if (st.sheets.length <= 1) { alert("Minimal 1 sheet."); return; }
+    if (!confirm(`Hapus sheet "${sh.name}" beserta semua datanya?`)) return;
+    const idx = st.sheets.findIndex(s => s.id === sheetId);
+    st.sheets.splice(idx, 1);
+    if (st.activeSheetId === sheetId) st.activeSheetId = st.sheets[0].id;
+    render(); persist();
+  });
 
   function applySimVisibility() {
     const st = getActiveStore();
