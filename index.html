@@ -489,21 +489,47 @@
   tbody tr { transition: background .12s; }
   tbody tr:hover { background: rgba(94,194,255,0.04); }
 
-  /* Compact column widths — default view must fit fullscreen. Sim-off target ≤1280px */
-  .col-remove   { left: 0; width: 28px; min-width: 28px; text-align: center; padding: 6px 2px; }
-  .col-name     { left: 28px;  min-width: 170px; max-width: 170px; border-right: 1px solid var(--line); }
-  .col-sku      { left: 198px; min-width: 100px; max-width: 100px; box-shadow: 2px 0 6px rgba(0,0,0,.25); }
-  .col-harga       { min-width: 98px; max-width: 110px; text-align: right; }
+  /* Column widths — match offline version */
+  :root {
+    --col-remove-w:      28px;
+    --col-name-w:        180px;
+    --col-sku-w:         90px;
+    --col-harga-w:       104px;
+    --col-operational-w: 96px;
+    --col-hpp-w:         96px;
+    --col-margin-w:      96px;
+    --col-hjt-w:         132px;
+    --col-discount-w:    76px;
+    --col-voucher-w:     72px;
+    --col-layanan-w:     72px;
+    --col-preorder-w:    80px;
+    --col-ongkir-w:      82px;
+    --col-promo-w:       80px;
+    --col-trx-w:         76px;
+    --col-ongkir-rp-w:   76px;
+    --col-roas-w:        54px;
+    --col-mktpct-w:      80px;
+    --col-final-w:       108px;
+  }
+  .col-remove      { left: 0; width: var(--col-remove-w); min-width: var(--col-remove-w); max-width: var(--col-remove-w); text-align: center; padding: 6px 2px; }
+  .col-name        { left: var(--col-remove-w); width: var(--col-name-w); min-width: var(--col-name-w); max-width: var(--col-name-w); border-right: 1px solid var(--line); }
+  .col-sku         { left: calc(var(--col-remove-w) + var(--col-name-w)); width: var(--col-sku-w); min-width: var(--col-sku-w); max-width: var(--col-sku-w); box-shadow: 2px 0 6px rgba(0,0,0,.25); }
+  .col-harga       { width: var(--col-harga-w); min-width: var(--col-harga-w); max-width: var(--col-harga-w); text-align: right; }
   .col-harga .cell-input.price { text-align: right; }
-  .col-operational { min-width: 78px; max-width: 85px; }
-  .col-hpp         { min-width: 105px; text-align: right; }
-  .col-hjt         { min-width: 105px; text-align: right; }
-  .col-trx         { min-width: 56px; max-width: 62px; text-align: right; }
-  .col-margin      { min-width: 52px; max-width: 58px; text-align: right; }
-  .col-discount, .col-voucher, .col-layanan,
-  .col-preorder, .col-ongkir, .col-promo { min-width: 52px; max-width: 60px; text-align: right; }
-  .col-roas      { min-width: 48px; max-width: 54px; text-align: right; }
-  .col-mktpct    { min-width: 58px; text-align: right; }
+  .col-operational { width: var(--col-operational-w); min-width: var(--col-operational-w); max-width: var(--col-operational-w); }
+  .col-hpp         { width: var(--col-hpp-w); min-width: var(--col-hpp-w); max-width: var(--col-hpp-w); text-align: right; }
+  .col-margin      { width: var(--col-margin-w); min-width: var(--col-margin-w); max-width: var(--col-margin-w); text-align: right; }
+  .col-hjt         { width: var(--col-hjt-w); min-width: var(--col-hjt-w); max-width: var(--col-hjt-w); text-align: right; }
+  .col-discount    { width: var(--col-discount-w); min-width: var(--col-discount-w); max-width: var(--col-discount-w); text-align: right; }
+  .col-voucher     { width: var(--col-voucher-w); min-width: var(--col-voucher-w); max-width: var(--col-voucher-w); text-align: right; }
+  .col-layanan     { width: var(--col-layanan-w); min-width: var(--col-layanan-w); max-width: var(--col-layanan-w); text-align: right; }
+  .col-preorder    { width: var(--col-preorder-w); min-width: var(--col-preorder-w); max-width: var(--col-preorder-w); text-align: right; }
+  .col-ongkir      { width: var(--col-ongkir-w); min-width: var(--col-ongkir-w); max-width: var(--col-ongkir-w); text-align: right; }
+  .col-promo       { width: var(--col-promo-w); min-width: var(--col-promo-w); max-width: var(--col-promo-w); text-align: right; }
+  .col-trx         { width: var(--col-trx-w); min-width: var(--col-trx-w); max-width: var(--col-trx-w); text-align: right; }
+  .col-ongkir-rp   { width: var(--col-ongkir-rp-w); min-width: var(--col-ongkir-rp-w); max-width: var(--col-ongkir-rp-w); text-align: right; }
+  .col-roas        { width: var(--col-roas-w); min-width: var(--col-roas-w); max-width: var(--col-roas-w); text-align: right; }
+  .col-mktpct      { width: var(--col-mktpct-w); min-width: var(--col-mktpct-w); max-width: var(--col-mktpct-w); text-align: right; }
   /* Bulk-select checkbox in col-name */
   .col-name .master-cb,
   .col-name .row-cb {
@@ -532,16 +558,17 @@
   .btn-bulk-del.visible { display: inline-flex; }
   .btn-bulk-del:hover { background: rgba(255,122,122,.18); }
 
-  /* Allow header text to wrap for long column names so columns stay compact */
   thead th.col-discount, thead th.col-voucher, thead th.col-layanan,
   thead th.col-preorder, thead th.col-ongkir,  thead th.col-promo,
-  thead th.col-mktpct,   thead th.col-trx      {
+  thead th.col-mktpct,   thead th.col-trx,     thead th.col-ongkir-rp {
     white-space: normal;
-    word-break: break-word;
+    word-break: normal;
+    overflow-wrap: normal;
     text-align: right;
     vertical-align: bottom;
     line-height: 1.2;
   }
+  thead th.col-roas { vertical-align: bottom; text-align: right; }
   /* right-align formula outputs in numeric columns */
   td.col-hpp, td.col-hjt, td.col-trx, td.col-mktpct, td.col-harga { text-align: right; }
   td.col-margin, td.col-discount, td.col-voucher, td.col-layanan,
@@ -549,7 +576,8 @@
   /* align input text to the right within numeric cells */
   td.col-margin .cell-input, td.col-discount .cell-input, td.col-voucher .cell-input,
   td.col-layanan .cell-input, td.col-preorder .cell-input, td.col-ongkir .cell-input,
-  td.col-promo .cell-input, td.col-roas .cell-input, td.col-trx .cell-input { text-align: right; }
+  td.col-promo .cell-input, td.col-roas .cell-input, td.col-trx .cell-input,
+  td.col-ongkir-rp .cell-input { text-align: right; }
 
   .col-remove, .col-name, .col-sku {
     position: sticky;
@@ -588,7 +616,7 @@
   tbody tr:hover .col-final { background: #141923; }
   /* When sim is ON, unstick final so sim cols remain readable */
   body.sim-on .col-final { position: static; box-shadow: none; }
-  body.sim-on thead .col-final { position: sticky; top: 0; }
+  body.sim-on thead .col-final { position: sticky; top: 0; right: auto; }
 
   /* Inputs */
   .cell-input {
@@ -756,6 +784,55 @@
   .page-btn:disabled { opacity: .35; cursor: not-allowed; }
   .page-label { font-size: 11px; color: var(--text-2); padding: 0 4px; white-space: nowrap; }
 
+  /* Hide number input spinners for compact layout */
+  input[type=number]::-webkit-outer-spin-button,
+  input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  input[type=number] { -moz-appearance: textfield; }
+
+  /* Page size dropdown */
+  .ps-wrap { position: relative; flex-shrink: 0; }
+  .ps-trigger {
+    display: inline-flex; align-items: center; gap: 5px;
+    height: 22px; padding: 0 8px;
+    background: var(--bg-2); border: 1px solid var(--line-2);
+    color: var(--text-1); border-radius: 4px; font-size: 11px;
+    cursor: pointer; transition: all .12s; white-space: nowrap;
+  }
+  .ps-trigger:hover { color: var(--text-0); border-color: var(--accent-ring); }
+  .ps-trigger.open  { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
+  .ps-trigger svg { flex-shrink: 0; transition: transform .15s; }
+  .ps-trigger.open svg { transform: rotate(180deg); }
+  .ps-menu {
+    position: absolute; bottom: calc(100% + 6px); left: 0;
+    background: var(--bg-1); border: 1px solid var(--line-2);
+    border-radius: 6px; padding: 4px; min-width: 100%;
+    box-shadow: 0 4px 16px rgba(0,0,0,.35);
+    display: none; flex-direction: column; gap: 1px; z-index: 200;
+  }
+  .ps-menu.open { display: flex; }
+  .ps-item {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 10px; padding: 5px 10px; border-radius: 4px;
+    font-size: 12px; color: var(--text-1); cursor: pointer;
+    transition: background .1s;
+  }
+  .ps-item:hover { background: var(--bg-2); color: var(--text-0); }
+  .ps-item.active { color: var(--accent); background: var(--accent-soft); }
+  .ps-item .ps-check { opacity: 0; font-size: 10px; }
+  .ps-item.active .ps-check { opacity: 1; }
+
+  /* Undo / Redo buttons */
+  .undo-redo-wrap { display: flex; align-items: center; gap: 2px; }
+  .ur-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px;
+    background: transparent; border: 1px solid transparent;
+    border-radius: 6px; color: var(--text-2);
+    cursor: pointer; transition: all .12s;
+  }
+  .ur-btn:hover:not(:disabled) { background: var(--bg-2); border-color: var(--line-2); color: var(--text-0); }
+  .ur-btn:disabled { opacity: .3; cursor: not-allowed; }
+
   /* ============ STATUS BAR ============ */
   .statusbar {
     display: flex;
@@ -820,10 +897,30 @@
     font-size: 10.5px; color: var(--text-2);
     padding: 3px 8px; border-radius: 20px;
     border: 1px solid transparent;
+    display: inline-flex; align-items: center;
   }
-  .sync-chip.saving { color: var(--accent-2); border-color: var(--accent-2); background: rgba(94,194,255,.07); }
   .sync-chip.saved  { color: var(--accent);   border-color: var(--accent);   background: rgba(124,245,212,.07); }
   .sync-chip.error  { color: var(--accent-warn); border-color: var(--accent-warn); }
+
+  /* Chat bubble saving indicator */
+  .sync-bubble {
+    display: none; align-items: flex-end; gap: 3px;
+    background: var(--bg-2); border: 1px solid var(--accent-2);
+    border-radius: 12px 12px 12px 3px;
+    padding: 5px 9px; position: relative;
+  }
+  .sync-chip.saving .sync-bubble { display: inline-flex; }
+  .sync-bubble span {
+    display: block; width: 5px; height: 5px;
+    border-radius: 50%; background: var(--accent-2);
+    animation: dot-bounce 1s ease-in-out infinite;
+  }
+  .sync-bubble span:nth-child(2) { animation-delay: .15s; }
+  .sync-bubble span:nth-child(3) { animation-delay: .3s; }
+  @keyframes dot-bounce {
+    0%, 60%, 100% { transform: translateY(0); opacity: .5; }
+    30%           { transform: translateY(-5px); opacity: 1; }
+  }
 
   /* ============ POPUPS (filter / sort) ============ */
   .popup-wrap { position: relative; }
@@ -928,7 +1025,21 @@
         </div>
       </div>
       <div class="header-right">
-        <span class="sync-chip" id="sync-status"></span>
+        <span class="sync-chip" id="sync-status">
+          <span class="sync-bubble"><span></span><span></span><span></span></span>
+        </span>
+        <div class="undo-redo-wrap">
+          <button class="ur-btn" id="btn-undo" title="Undo (Ctrl+Z / ⌘Z)" disabled>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 7v6h6"/><path d="M3 13C5.5 7.5 11 5 17 7.5a9 9 0 0 1 4 7.5"/>
+            </svg>
+          </button>
+          <button class="ur-btn" id="btn-redo" title="Redo (Ctrl+Y / ⌘⇧Z)" disabled>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 7v6h-6"/><path d="M21 13C18.5 7.5 13 5 7 7.5a9 9 0 0 0-4 7.5"/>
+            </svg>
+          </button>
+        </div>
         <div class="user-pill">
           <span class="name" id="user-display">...</span>
           <button id="btn-logout">Keluar</button>
@@ -969,6 +1080,14 @@
       <div class="param">
         <div class="param-head"><input type="checkbox" class="apply-cb" id="cb-roas"> ROAS</div>
         <input type="number" id="default-roas" value="10" min="1" step="0.5" />
+      </div>
+      <div class="param">
+        <div class="param-head"><input type="checkbox" class="apply-cb" id="cb-trx"> TRX Fee</div>
+        <input type="number" id="global-trx" value="1250" min="0" step="50" />
+      </div>
+      <div class="param">
+        <div class="param-head"><input type="checkbox" class="apply-cb" id="cb-ongkir-rp"> Ongkir</div>
+        <input type="number" id="global-ongkir-rp" value="0" min="0" step="500" />
       </div>
       <div class="rounding">
         <div class="param-head">Pembulatan Harga</div>
@@ -1042,11 +1161,11 @@
             <th class="col-sku"></th>
             <th colspan="5"></th>
             <th class="group" colspan="2">Promotion Set</th>
-            <th class="group" colspan="5">Biaya Layanan</th>
+            <th class="group" colspan="6">Biaya Layanan</th>
             <th></th>
             <th></th>
             <th class="col-final"></th>
-            <th class="group sim-col" colspan="2">Aktual</th>
+            <th class="group sim-col" colspan="3">Aktual</th>
             <th class="sim-col"></th>
             <th class="sim-col"></th>
           </tr>
@@ -1062,15 +1181,17 @@
             <th class="col-discount">Discount %</th>
             <th class="col-voucher">Voucher %</th>
             <th class="col-layanan">Layanan %</th>
-            <th class="col-preorder">Pre-Order %</th>
-            <th class="col-ongkir">Ongkir Xtra %</th>
-            <th class="col-promo">Promo Xtra %</th>
-            <th class="col-trx">TRX Fee</th>
+            <th class="col-preorder"><span style="white-space:nowrap">Pre-Order</span> %</th>
+            <th class="col-ongkir"><span style="white-space:nowrap">Ongkir Xtra</span> %</th>
+            <th class="col-promo"><span style="white-space:nowrap">Promo Xtra</span> %</th>
+            <th class="col-trx"><span style="white-space:nowrap">TRX Fee</span></th>
+            <th class="col-ongkir-rp">Ongkir</th>
             <th class="col-roas">ROAS</th>
             <th class="col-mktpct">Marketing %</th>
             <th class="col-final">Set Price</th>
             <th class="sim-col">Act Disc %</th>
             <th class="sim-col">Act Vchr %</th>
+            <th class="sim-col">Harga Pembeli</th>
             <th class="sim-col">Sale Rev</th>
             <th class="sim-col">Status</th>
           </tr>
@@ -1116,7 +1237,11 @@
     const el = $("sync-status");
     if (!el) return;
     el.className = "sync-chip" + (state ? " " + state : "");
-    el.textContent = text || "";
+    if (state === "saving") {
+      el.innerHTML = `<span class="sync-bubble"><span></span><span></span><span></span></span>`;
+    } else {
+      el.innerHTML = text || "";
+    }
   }
   window.__setSyncStatus = setSyncStatus;
 
@@ -1194,10 +1319,10 @@
 <script>
 (function () {
   const PPN = 0.11;
-  const PAGE_SIZE = 100;
+  let PAGE_SIZE = 100;
   const MAX_STORES = 3;
   const MAX_SHEETS = 3;
-  const MAX_PAGES  = 5;   // max 5 pages per sheet = 500 rows per sheet
+  const MAX_PAGES  = 50;  // max 50 pages per sheet = up to 25000 rows per sheet
 
   // ── State ────────────────────────────────────────────────────────────────
   const state = {
@@ -1214,7 +1339,8 @@
 
   function defaultGlobals() {
     return { defRoas:"10", defMargin:"10", gDiscount:"10", gVoucher:"5",
-             gLayanan:"10", gPreorder:"0", gOngkir:"6", gPromo:"4.5" };
+             gLayanan:"10", gPreorder:"0", gOngkir:"6", gPromo:"4.5",
+             gTrx:"1250", gOngkirRp:"0" };
   }
   function makeSheet(name) {
     return { id: uid("sh"), name: name || "Semua Produk", rows: [], currentPage: 1 };
@@ -1245,14 +1371,16 @@
     return {
       name: "", sku: "", purchase: 0,
       operational: 0, operationalRp: 0, operationalMode: "pct",
-      margin:     getDefaultMargin(),
+      margin: getDefaultMargin(), marginRp: 0, marginMode: "pct",
       discount:   getVal("global-discount") / 100,
       voucher:    getVal("global-voucher") / 100,
       layanan:    getVal("global-layanan") / 100,
       preOrder:   getVal("global-preorder") / 100,
       ongkirXtra: getVal("global-ongkir") / 100,
       promoXtra:  getVal("global-promo") / 100,
-      trxFee: 1250, roas: getDefaultRoas(),
+      trxFee: getVal("global-trx") || 1250,
+      ongkir: getVal("global-ongkir-rp"),
+      roas: getDefaultRoas(),
       actDiscount: 0.10, actVoucher: 0.05,
     };
   }
@@ -1267,18 +1395,19 @@
     const cogs = r.operationalMode === "rp"
       ? (r.purchase || 0) + (r.operationalRp || 0)
       : (r.purchase || 0) / (1 - (r.operational || 0));
-    const targetPrice   = cogs / (1 - r.margin);
+    const targetPrice   = r.marginMode === "rp" ? cogs + (r.marginRp||0) : cogs / (1 - r.margin);
     const promoPrice    = targetPrice / (1 - r.discount - r.voucher);
     const feeTotal      = (r.layanan||0) + (r.preOrder||0) + (r.ongkirXtra||0) + (r.promoXtra||0);
-    const mktplacePrice = promoPrice / (1 - feeTotal) + (r.trxFee||0);
+    const mktplacePrice = promoPrice / (1 - feeTotal) + (r.trxFee||0) + (r.ongkir||0);
     const mktPct        = roasToMktPct(r.roas);
     const setPrice      = ceilTo(mktplacePrice / (1 - mktPct), rounding);
-    const net           = mktplacePrice - (r.trxFee||0);
+    const net           = mktplacePrice - (r.trxFee||0) - (r.ongkir||0);
     const afterFees     = net - net * feeTotal;
     const saleRevenue   = afterFees - promoPrice * ((r.actDiscount||0) + (r.actVoucher||0));
+    const buyerPrice    = setPrice * (1 - (r.actDiscount||0)) * (1 - (r.actVoucher||0));
     const diff          = saleRevenue - targetPrice;
     const status        = diff > 0.5 ? "BLUE" : diff >= -0.5 ? "GREEN" : "RED";
-    return { cogs, targetPrice, promoPrice, mktplacePrice, mktPct, setPrice, saleRevenue, status };
+    return { cogs, targetPrice, promoPrice, mktplacePrice, mktPct, setPrice, saleRevenue, buyerPrice, status };
   }
 
   const _fmt = new Intl.NumberFormat("id-ID", { maximumFractionDigits: 0 });
@@ -1398,10 +1527,51 @@
     const el = document.getElementById("pager");
     if (!el) return;
     el.innerHTML = "";
+
+    // ── Page size dropdown ───────────────────────────────────────────────────
+    const psWrap = document.createElement("div");
+    psWrap.className = "ps-wrap";
+    const psTrigger = document.createElement("button");
+    psTrigger.className = "ps-trigger";
+    psTrigger.innerHTML = `<span id="ps-label">${PAGE_SIZE} Row</span><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>`;
+    const psMenu = document.createElement("div");
+    psMenu.className = "ps-menu";
+    [100, 250, 500].forEach(size => {
+      const item = document.createElement("div");
+      item.className = "ps-item" + (PAGE_SIZE === size ? " active" : "");
+      item.innerHTML = `<span>${size} Row</span><span class="ps-check">✓</span>`;
+      item.addEventListener("click", () => {
+        if (PAGE_SIZE === size) return;
+        PAGE_SIZE = size;
+        const sh = getActiveSheet();
+        if (sh) sh.currentPage = 1;
+        renderTable(); renderPager(); updateSummary();
+      });
+      psMenu.appendChild(item);
+    });
+    psTrigger.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const isOpen = psMenu.classList.contains("open");
+      document.querySelectorAll(".ps-menu.open").forEach(m => { m.classList.remove("open"); m.previousElementSibling && m.previousElementSibling.classList.remove("open"); });
+      if (!isOpen) { psMenu.classList.add("open"); psTrigger.classList.add("open"); }
+    });
+    psWrap.appendChild(psTrigger);
+    psWrap.appendChild(psMenu);
+    el.appendChild(psWrap);
+
+    // ── Separator ────────────────────────────────────────────────────────────
+    const sep = document.createElement("div");
+    sep.style.cssText = "width:1px;height:16px;background:var(--line-2);margin:0 4px;flex-shrink:0;";
+    el.appendChild(sep);
+
     if (pg.pages <= 1) {
-      el.innerHTML = `<span class="page-label">${pg.total} baris</span>`;
+      const lbl = document.createElement("span");
+      lbl.className = "page-label";
+      lbl.textContent = `${pg.total} baris`;
+      el.appendChild(lbl);
       return;
     }
+
     const sh = getActiveSheet();
     const mk = (label, page, opts) => {
       const b = document.createElement("button");
@@ -1413,7 +1583,6 @@
     };
     el.appendChild(mk("«", 1, { disabled: pg.page <= 1 }));
     el.appendChild(mk("‹", pg.page - 1, { disabled: pg.page <= 1 }));
-    // Window of up to 5 around current
     const start = Math.max(1, pg.page - 2);
     const end = Math.min(pg.pages, start + 4);
     const realStart = Math.max(1, end - 4);
@@ -1462,7 +1631,12 @@
         </div>
       </td>
       <td class="col-hpp" data-out="cogs">${rp(c.cogs)}</td>
-      <td class="col-margin"><input class="cell-input" type="number" data-f="margin" data-i="${i}" data-pct="1" value="${pv(r.margin)}" step="0.5" min="0" /></td>
+      <td class="col-margin">
+        <div class="op-cell">
+          <input class="cell-input" type="number" data-f="${r.marginMode==='rp'?'marginRp':'margin'}" data-i="${i}" ${r.marginMode!=='rp'?'data-pct="1"':''} value="${r.marginMode==='rp'?(r.marginRp||0):pv(r.margin)}" step="${r.marginMode==='rp'?'500':'0.5'}" min="0" placeholder="0" />
+          <button type="button" class="op-mode ${r.marginMode==='rp'?'rp':''}" data-act="toggle-margin" data-i="${i}">${r.marginMode==='rp'?'Rp':'%'}</button>
+        </div>
+      </td>
       <td class="col-hjt" data-out="targetPrice">${rp(c.targetPrice)}</td>
       <td class="col-discount"><input class="cell-input" type="number" data-f="discount" data-i="${i}" data-pct="1" value="${pv(r.discount)}" step="0.5" min="0" /></td>
       <td class="col-voucher"><input class="cell-input" type="number" data-f="voucher"  data-i="${i}" data-pct="1" value="${pv(r.voucher)}"  step="0.5" min="0" /></td>
@@ -1471,11 +1645,13 @@
       <td class="col-ongkir"><input class="cell-input" type="number" data-f="ongkirXtra" data-i="${i}" data-pct="1" value="${pv(r.ongkirXtra)}" step="0.1" min="0" /></td>
       <td class="col-promo"><input class="cell-input" type="number" data-f="promoXtra"  data-i="${i}" data-pct="1" value="${pv(r.promoXtra)}"  step="0.1" min="0" /></td>
       <td class="col-trx"><input class="cell-input" type="number" data-f="trxFee" data-i="${i}" value="${r.trxFee}" step="50" min="0" /></td>
+      <td class="col-ongkir-rp"><input class="cell-input" type="number" data-f="ongkir" data-i="${i}" value="${r.ongkir||0}" step="500" min="0" /></td>
       <td class="col-roas"><input class="cell-input" type="number" data-f="roas" data-i="${i}" value="${r.roas}" step="0.5" min="0.1" /></td>
       <td class="col-mktpct" data-out="mktPct">${pct(c.mktPct)}</td>
       <td class="col-final" data-out="setPrice">${rp(c.setPrice)}</td>
       <td class="sim-col"><input class="cell-input" type="number" data-f="actDiscount" data-i="${i}" data-pct="1" value="${pv(r.actDiscount)}" step="0.5" min="0" /></td>
       <td class="sim-col"><input class="cell-input" type="number" data-f="actVoucher"  data-i="${i}" data-pct="1" value="${pv(r.actVoucher)}"  step="0.5" min="0" /></td>
+      <td class="sim-col" data-out="buyerPrice">${rp(c.buyerPrice)}</td>
       <td class="sim-col" data-out="saleRevenue">${rp(c.saleRevenue)}</td>
       <td class="sim-col" data-out="status" title="${lbl}" style="text-align:center;font-size:15px">${em}</td>
     `;
@@ -1488,7 +1664,7 @@
     const lbl = c.status === "BLUE" ? "Untung" : c.status === "GREEN" ? "Impas" : "Rugi";
     const outs = {
       cogs: rp(c.cogs), targetPrice: rp(c.targetPrice),
-      mktPct: pct(c.mktPct), setPrice: rp(c.setPrice), saleRevenue: rp(c.saleRevenue),
+      mktPct: pct(c.mktPct), setPrice: rp(c.setPrice), buyerPrice: rp(c.buyerPrice), saleRevenue: rp(c.saleRevenue),
     };
     for (const k in outs) {
       const cell = tr.querySelector(`[data-out="${k}"]`);
@@ -1526,12 +1702,19 @@
     if (!t.dataset) return;
     if (t.dataset.act === "del") {
       const sh = getActiveSheet(); if (!sh) return;
+      pushHistory();
       sh.rows.splice(+t.dataset.idx, 1);
       renderTable(); renderPager(); updateSummary(); persist();
     } else if (t.dataset.act === "toggle-op") {
       const sh = getActiveSheet(); if (!sh) return;
       const row = sh.rows[+t.dataset.i]; if (!row) return;
       row.operationalMode = row.operationalMode === "rp" ? "pct" : "rp";
+      renderTable(); persist();
+    } else if (t.dataset.act === "toggle-margin") {
+      const sh = getActiveSheet(); if (!sh) return;
+      const row = sh.rows[+t.dataset.i]; if (!row) return;
+      pushHistory();
+      row.marginMode = row.marginMode === "rp" ? "pct" : "rp";
       renderTable(); persist();
     }
   });
@@ -1599,6 +1782,7 @@
       alert(`Sheet ini sudah penuh (maks ${MAX_PAGES * PAGE_SIZE} baris = ${MAX_PAGES} halaman). Tambah sheet baru.`);
       return;
     }
+    pushHistory();
     sh.rows.push(makeRow());
     sh.currentPage = Math.min(MAX_PAGES, Math.max(1, Math.ceil(sh.rows.length / PAGE_SIZE)));
     renderTable(); renderPager(); updateSummary(); persist();
@@ -1614,8 +1798,10 @@
       if (cb("cb-voucher"))  r.voucher    = getVal("global-voucher") / 100;
       if (cb("cb-layanan"))  r.layanan    = getVal("global-layanan") / 100;
       if (cb("cb-preorder")) r.preOrder   = getVal("global-preorder") / 100;
-      if (cb("cb-ongkir"))   r.ongkirXtra = getVal("global-ongkir") / 100;
-      if (cb("cb-promo"))    r.promoXtra  = getVal("global-promo") / 100;
+      if (cb("cb-ongkir"))      r.ongkirXtra = getVal("global-ongkir") / 100;
+      if (cb("cb-promo"))       r.promoXtra  = getVal("global-promo") / 100;
+      if (cb("cb-trx"))         r.trxFee     = getVal("global-trx");
+      if (cb("cb-ongkir-rp"))   r.ongkir     = getVal("global-ongkir-rp");
     });
     renderTable(); persist();
   });
@@ -1632,6 +1818,8 @@
       gPreorder: document.getElementById("global-preorder").value,
       gOngkir:   document.getElementById("global-ongkir").value,
       gPromo:    document.getElementById("global-promo").value,
+      gTrx:      document.getElementById("global-trx").value,
+      gOngkirRp: document.getElementById("global-ongkir-rp").value,
     };
   }
   function applyStoreGlobalsToInputs() {
@@ -1645,6 +1833,8 @@
     document.getElementById("global-preorder").value = g.gPreorder;
     document.getElementById("global-ongkir").value   = g.gOngkir;
     document.getElementById("global-promo").value    = g.gPromo;
+    document.getElementById("global-trx").value      = g.gTrx      || "1250";
+    document.getElementById("global-ongkir-rp").value= g.gOngkirRp || "0";
     document.getElementById("rounding").value = String(st.rounding || 100);
     // sim toggle
     const simTog = document.getElementById("sim-toggle");
@@ -1655,7 +1845,8 @@
   }
 
   ["default-roas","default-margin","global-discount","global-voucher",
-   "global-layanan","global-preorder","global-ongkir","global-promo"].forEach(id => {
+   "global-layanan","global-preorder","global-ongkir","global-promo",
+   "global-trx","global-ongkir-rp"].forEach(id => {
     document.getElementById(id).addEventListener("input", () => { syncGlobalsFromInputs(); persist(); });
   });
 
@@ -1780,6 +1971,7 @@
     if (!selectedIdxs.size) return;
     if (!confirm(`Hapus ${selectedIdxs.size} produk yang dipilih?`)) return;
     const sh = getActiveSheet(); if (!sh) return;
+    pushHistory();
     const sortedDesc = [...selectedIdxs].sort((a, b) => b - a);
     sortedDesc.forEach(i => sh.rows.splice(i, 1));
     selectedIdxs.clear();
@@ -2078,6 +2270,87 @@
   // ── Persistence (Supabase) ───────────────────────────────────────────────
   let _saveTimer = null, _pendingSave = false;
 
+  // ── Undo / Redo ──────────────────────────────────────────────────────────
+  const _undoStack = [], _redoStack = [];
+  const MAX_HISTORY = 50;
+  let _lastFocusSnapshot = false;
+
+  function _snapshotRows() {
+    const sh = getActiveSheet(); if (!sh) return null;
+    return JSON.stringify(sh.rows);
+  }
+
+  function pushHistory() {
+    const snap = _snapshotRows(); if (snap == null) return;
+    _undoStack.push(snap);
+    if (_undoStack.length > MAX_HISTORY) _undoStack.shift();
+    _redoStack.length = 0;
+    _updateUndoRedoBtns();
+  }
+
+  function _restoreRows(snap) {
+    const sh = getActiveSheet(); if (!sh) return;
+    sh.rows = JSON.parse(snap).map(sanitizeRow);
+    sh.currentPage = Math.min(sh.currentPage, Math.max(1, Math.ceil(sh.rows.length / PAGE_SIZE)));
+    renderTable(); renderPager(); updateSummary(); persist();
+  }
+
+  function undo() {
+    if (!_undoStack.length) return;
+    const current = _snapshotRows();
+    if (current != null) _redoStack.push(current);
+    _restoreRows(_undoStack.pop());
+    _updateUndoRedoBtns();
+  }
+
+  function redo() {
+    if (!_redoStack.length) return;
+    const current = _snapshotRows();
+    if (current != null) _undoStack.push(current);
+    _restoreRows(_redoStack.pop());
+    _updateUndoRedoBtns();
+  }
+
+  function _updateUndoRedoBtns() {
+    const u = document.getElementById("btn-undo");
+    const r = document.getElementById("btn-redo");
+    if (u) u.disabled = _undoStack.length === 0;
+    if (r) r.disabled = _redoStack.length === 0;
+  }
+
+  // Keyboard shortcuts: Ctrl+Z / ⌘Z = undo, Ctrl+Y / Ctrl+Shift+Z / ⌘⇧Z = redo
+  document.addEventListener("keydown", (e) => {
+    const mod = e.ctrlKey || e.metaKey;
+    if (!mod) return;
+    if (e.key === "z" && !e.shiftKey) { e.preventDefault(); undo(); }
+    else if (e.key === "y" || (e.key === "z" && e.shiftKey)) { e.preventDefault(); redo(); }
+  });
+
+  // Snapshot on focus of any cell input (once per focus session)
+  document.addEventListener("focusin", (e) => {
+    if (e.target.classList && e.target.classList.contains("cell-input") && !_lastFocusSnapshot) {
+      pushHistory();
+      _lastFocusSnapshot = true;
+    }
+  });
+  document.addEventListener("focusout", (e) => {
+    if (e.target.classList && e.target.classList.contains("cell-input")) {
+      _lastFocusSnapshot = false;
+    }
+  });
+
+  document.getElementById("btn-undo").addEventListener("click", undo);
+  document.getElementById("btn-redo").addEventListener("click", redo);
+
+  // Close page-size dropdown on outside click
+  document.addEventListener("click", () => {
+    document.querySelectorAll(".ps-menu.open").forEach(m => {
+      m.classList.remove("open");
+      const trigger = m.parentElement && m.parentElement.querySelector(".ps-trigger");
+      if (trigger) trigger.classList.remove("open");
+    });
+  });
+
   function currentPayload() {
     return { v: 3, stores: state.stores, activeStoreId: state.activeStoreId };
   }
@@ -2110,17 +2383,26 @@
 
   window.addEventListener("beforeunload", () => { if (_pendingSave) { clearTimeout(_saveTimer); saveNow(); } });
 
+  document.querySelector(".table-wrap").addEventListener("wheel", (e) => {
+    if (e.shiftKey) {
+      e.preventDefault();
+      e.currentTarget.scrollLeft += e.deltaY;
+    }
+  }, { passive: false });
+
   function sanitizeRow(r) {
     return {
       name: r.name||"", sku: r.sku||"", purchase: r.purchase||0,
       operational: r.operational!=null ? r.operational : 0,
       operationalRp: r.operationalRp||0,
       operationalMode: r.operationalMode==="rp" ? "rp" : "pct",
-      margin: r.margin||0.10,
+      margin: r.margin||0.10, marginRp: r.marginRp||0,
+      marginMode: r.marginMode==="rp" ? "rp" : "pct",
       discount: r.discount||0, voucher: r.voucher||0,
       layanan: r.layanan||0, preOrder: r.preOrder||0,
       ongkirXtra: r.ongkirXtra||0, promoXtra: r.promoXtra||0,
       trxFee: r.trxFee!=null ? r.trxFee : 1250,
+      ongkir: r.ongkir!=null ? r.ongkir : 0,
       roas: r.roas||10,
       actDiscount: r.actDiscount!=null ? r.actDiscount : 0.10,
       actVoucher:  r.actVoucher !=null ? r.actVoucher  : 0.05,
