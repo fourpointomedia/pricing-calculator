@@ -498,7 +498,6 @@
     --col-name-w:        180px;
     --col-sku-w:         90px;
     --col-harga-w:       104px;
-    --col-operational-w: 96px;
     --col-hpp-w:         96px;
     --col-margin-w:      96px;
     --col-hjt-w:         132px;
@@ -520,7 +519,6 @@
   .col-sku         { left: calc(var(--col-remove-w) + var(--col-name-w)); width: var(--col-sku-w); min-width: var(--col-sku-w); max-width: var(--col-sku-w); box-shadow: 2px 0 6px rgba(0,0,0,.25); }
   .col-harga       { width: var(--col-harga-w); min-width: var(--col-harga-w); max-width: var(--col-harga-w); text-align: right; }
   .col-harga .cell-input.price { text-align: right; }
-  .col-operational { width: var(--col-operational-w); min-width: var(--col-operational-w); max-width: var(--col-operational-w); }
   .col-hpp         { width: var(--col-hpp-w); min-width: var(--col-hpp-w); max-width: var(--col-hpp-w); text-align: right; }
   .col-margin      { width: var(--col-margin-w); min-width: var(--col-margin-w); max-width: var(--col-margin-w); text-align: right; }
   .col-hjt         { width: var(--col-hjt-w); min-width: var(--col-hjt-w); max-width: var(--col-hjt-w); text-align: right; }
@@ -1496,7 +1494,6 @@
             <th class="col-name"><input type="checkbox" class="master-cb" id="cb-all" title="Pilih semua" /> Nama Produk</th>
             <th class="col-sku">SKU</th>
             <th class="col-harga">Harga Barang</th>
-            <th class="col-operational">Operational</th>
             <th class="col-hpp">HPP</th>
             <th class="col-margin">Margin %</th>
             <th class="col-hjt">Harga Jual Target</th>
@@ -1594,19 +1591,6 @@
     <div class="fgroup">
       <div class="gtitle">Biaya Produk</div>
       <div class="frow">
-        <div class="field">
-          <div class="flabel">
-            Operational
-            <div class="pmseg flabel-end">
-              <button class="pmseg-btn" data-pf="op" data-mode="rp" onclick="lvSetOpMode('rp')">Rp</button>
-              <button class="pmseg-btn" data-pf="op" data-mode="pct" onclick="lvSetOpMode('pct')">%</button>
-            </div>
-          </div>
-          <div class="iwrap">
-            <input class="finput" id="lv-f-op" type="number" step="500" min="0" oninput="lvPanelChange()"/>
-            <span class="sfx" id="lv-op-sfx"></span>
-          </div>
-        </div>
         <div class="field"><div class="flabel">HPP (otomatis)</div><input class="finput computed" id="lv-f-hpp" readonly/></div>
       </div>
     </div>
@@ -1865,11 +1849,10 @@
   function uid(pref) { return pref + "_" + Math.random().toString(36).slice(2, 9); }
 
   function defaultGlobals() {
-    return { defRoas:"10", defOperational:"0", defMargin:"10", gDiscount:"10", gVoucher:"5",
+    return { defRoas:"10", defMargin:"10", gDiscount:"10", gVoucher:"5",
              gLayanan:"10", gPreorder:"0", gOngkir:"6", gPromo:"4.5",
              gTrx:"1250", gOngkirRp:"0",
-             defMarginMode:"pct", defOperationalMode:"pct",
-             chipActive:{ defRoas:true, defOperational:true, defMargin:true, gDiscount:true, gVoucher:true,
+             defMarginMode:"pct", chipActive:{ defRoas:true, defMargin:true, gDiscount:true, gVoucher:true,
                           gLayanan:true, gPreorder:false, gOngkir:true, gPromo:true,
                           gTrx:true, gOngkirRp:false } };
   }
@@ -1922,9 +1905,6 @@
     const ongkirDefault = getVal("global-ongkir-rp");
     return {
       name: "", sku: "", varian: "", purchase: 0,
-      operational:    act.defOperational !== false && (g.defOperationalMode||"pct")==="pct" ? (parseFloat(g.defOperational||0)/100) : 0,
-      operationalRp:  act.defOperational !== false && (g.defOperationalMode||"pct")==="rp"  ? (parseFloat(g.defOperational||0))     : 0,
-      operationalMode: g.defOperationalMode || "pct",
       margin: getDefaultMargin(), marginRp: 0, marginMode: "pct",
       discount:   act.gDiscount  !== false ? getVal("global-discount") / 100 : 0,
       voucher:    act.gVoucher   !== false ? getVal("global-voucher")  / 100 : 0,
@@ -1946,9 +1926,7 @@
   function compute(r) {
     const st = getActiveStore();
     const rounding = st ? st.rounding : 100;
-    const cogs = r.operationalMode === "rp"
-      ? (r.purchase || 0) + (r.operationalRp || 0)
-      : (r.purchase || 0) / (1 - (r.operational || 0));
+    const cogs = r.purchase || 0;
     const targetPrice   = r.marginMode === "rp" ? cogs + (r.marginRp||0) : cogs / (1 - r.margin);
     const promoPrice    = targetPrice / (1 - r.discount - r.voucher);
     const feeTotal      = (r.layanan||0) + (r.preOrder||0) + (r.ongkirXtra||0) + (r.promoXtra||0);
@@ -2170,11 +2148,6 @@
     const c   = compute(r);
     const em  = c.status === "BLUE" ? "🔵" : c.status === "GREEN" ? "🟢" : "🔴";
     const lbl = c.status === "BLUE" ? "Untung" : c.status === "GREEN" ? "Impas" : "Rugi";
-    const isRp   = r.operationalMode === "rp";
-    const opVal  = isRp ? (r.operationalRp || 0) : pv(r.operational);
-    const opF    = isRp ? "operationalRp" : "operational";
-    const opStep = isRp ? "500" : "0.5";
-    const opAttr = isRp ? "" : 'data-pct="1"';
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td class="col-remove"><button class="remove-btn" data-act="del" data-idx="${i}" title="Hapus">×</button></td>
@@ -2186,12 +2159,6 @@
       </td>
       <td class="col-sku"><input class="cell-input sku" data-f="sku" data-i="${i}" value="${esc(r.sku)}" placeholder="SKU…" /></td>
       <td class="col-harga"><input class="cell-input price" type="number" data-f="purchase" data-i="${i}" value="${r.purchase||""}" min="0" step="500" placeholder="0" /></td>
-      <td class="col-operational">
-        <div class="op-cell">
-          <input class="cell-input" type="number" data-f="${opF}" data-i="${i}" ${opAttr} value="${opVal}" step="${opStep}" min="0" placeholder="0" />
-          <button type="button" class="op-mode ${isRp ? 'rp' : ''}" data-act="toggle-op" data-i="${i}">${isRp ? 'Rp' : '%'}</button>
-        </div>
-      </td>
       <td class="col-hpp" data-out="cogs">${rp(c.cogs)}</td>
       <td class="col-margin">
         <div class="op-cell">
@@ -2267,11 +2234,6 @@
       pushHistory();
       sh.rows.splice(+t.dataset.idx, 1);
       renderTable(); renderPager(); updateSummary(); persist();
-    } else if (t.dataset.act === "toggle-op") {
-      const sh = getActiveSheet(); if (!sh) return;
-      const row = sh.rows[+t.dataset.i]; if (!row) return;
-      row.operationalMode = row.operationalMode === "rp" ? "pct" : "rp";
-      renderTable(); persist();
     } else if (t.dataset.act === "toggle-margin") {
       const sh = getActiveSheet(); if (!sh) return;
       const row = sh.rows[+t.dataset.i]; if (!row) return;
@@ -2401,31 +2363,25 @@
     const active = g.chipActive || defaultGlobals().chipActive;
     pushHistory();
     sh.rows.forEach(r => {
-      if (active.defRoas)   r.roas       = getDefaultRoas();
-      if (active.defOperational !== false) {
-        const opMode = (g.defOperationalMode || "pct");
-        const opVal  = parseFloat(g.defOperational || 0) || 0;
-        r.operationalMode = opMode;
-        if (opMode === "rp") { r.operationalRp = opVal; r.operational = 0; }
-        else                 { r.operational = opVal / 100; r.operationalRp = 0; }
-      } else {
-        r.operationalMode = "pct"; r.operational = 0; r.operationalRp = 0;
-      }
-      if (active.defMargin) {
+      // Chip AKTIF  → apply nilai global ke row
+      // Chip NONAKTIF → skip, nilai row tidak diubah sama sekali
+      if (active.defRoas !== false)
+        r.roas = getDefaultRoas();
+      if (active.defMargin !== false) {
         if ((g.defMarginMode || "pct") === "rp") {
           r.marginMode = "rp"; r.marginRp = parseFloat(g.defMargin) || 0;
         } else {
           r.marginMode = "pct"; r.margin = getDefaultMargin();
         }
       }
-      r.discount   = active.gDiscount  !== false ? getVal("global-discount") / 100 : 0;
-      r.voucher    = active.gVoucher   !== false ? getVal("global-voucher")  / 100 : 0;
-      r.layanan    = active.gLayanan   !== false ? getVal("global-layanan")  / 100 : 0;
-      r.preOrder   = active.gPreorder  !== false ? getVal("global-preorder") / 100 : 0;
-      r.ongkirXtra = active.gOngkir    !== false ? getVal("global-ongkir")   / 100 : 0;
-      r.promoXtra  = active.gPromo     !== false ? getVal("global-promo")    / 100 : 0;
-      r.trxFee     = active.gTrx       !== false ? getVal("global-trx")           : 0;
-      r.ongkir     = active.gOngkirRp  !== false ? getVal("global-ongkir-rp")     : 0;
+      if (active.gDiscount  !== false) r.discount   = getVal("global-discount") / 100;
+      if (active.gVoucher   !== false) r.voucher    = getVal("global-voucher")  / 100;
+      if (active.gLayanan   !== false) r.layanan    = getVal("global-layanan")  / 100;
+      if (active.gPreorder  !== false) r.preOrder   = getVal("global-preorder") / 100;
+      if (active.gOngkir    !== false) r.ongkirXtra = getVal("global-ongkir")   / 100;
+      if (active.gPromo     !== false) r.promoXtra  = getVal("global-promo")    / 100;
+      if (active.gTrx       !== false) r.trxFee     = getVal("global-trx");
+      if (active.gOngkirRp  !== false) r.ongkir     = getVal("global-ongkir-rp");
     });
     if (document.body.classList.contains('list-view')) { if (window.lvRender) window.lvRender(); renderPager(); updateSummary(); }
     else { renderTable(); renderPager(); updateSummary(); }
@@ -2443,8 +2399,6 @@
     // Ensure v2 fields exist
     if (!g.chipActive) g.chipActive = defaultGlobals().chipActive;
     if (!g.defMarginMode) g.defMarginMode = "pct";
-    if (!g.defOperationalMode) g.defOperationalMode = "pct";
-    if (g.defOperational == null) g.defOperational = "0";
     // Rounding
     document.getElementById("rounding").value = String(st.rounding || 100);
     // Sim toggle
@@ -2489,7 +2443,6 @@
   // ── Chip param bar (v2) ──────────────────────────────────────────────────
   const CHIP_DEFS = [
     { key:"defRoas",         label:"ROAS",        unit:"",   step:0.5, min:0.1, hasMode:false },
-    { key:"defOperational",  label:"Operasional", unit:"%",  step:0.5, min:0,   hasMode:true, modeKey:"defOperationalMode" },
     { key:"defMargin",       label:"Margin",      unit:"%",  step:0.5, min:0,   hasMode:true, modeKey:"defMarginMode"      },
     { key:"gDiscount", label:"Discount",   unit:"%",  step:0.5, min:0,   hasMode:false },
     { key:"gVoucher",  label:"Voucher",    unit:"%",  step:0.5, min:0,   hasMode:false },
@@ -2516,8 +2469,6 @@
     const g = st.globals || defaultGlobals();
     if (!g.chipActive) g.chipActive = defaultGlobals().chipActive;
     if (!g.defMarginMode) g.defMarginMode = "pct";
-    if (!g.defOperationalMode) g.defOperationalMode = "pct";
-    if (g.defOperational == null) g.defOperational = "0";
     const container = document.getElementById("param-chips-container");
     if (!container) return;
     // Remove popups previously moved to body
@@ -2873,7 +2824,7 @@
     const st = getActiveStore(); if (!st) { alert("Tidak ada toko aktif."); return; }
     const wb = XLSX.utils.book_new();
     st.sheets.forEach((sh, sidx) => {
-      const H = ["SKU","Nama Produk","Harga Barang","Operational %","Operational Rp","Op Mode",
+      const H = ["SKU","Nama Produk","Harga Barang",
                  "Margin %","Discount %","Voucher %","Layanan %","Pre-Order %","Ongkir Xtra %","Promo Xtra %",
                  "TRX Fee","ROAS","Set Price (Final)"];
       const body = sh.rows.map(r => {
@@ -2881,7 +2832,6 @@
         return [
           r.sku||"", r.name||"",
           Math.round(r.purchase||0),
-          pv(r.operational), Math.round(r.operationalRp||0), r.operationalMode||"pct",
           pv(r.margin), pv(r.discount), pv(r.voucher), pv(r.layanan),
           pv(r.preOrder), pv(r.ongkirXtra), pv(r.promoXtra),
           Math.round(r.trxFee||0), r.roas||10,
@@ -2925,9 +2875,6 @@
     const skuIdx      = findIdx(header, "sku");
     const nameIdx     = findIdx(header, "nama","name","produk","product");
     const purchaseIdx = findIdx(header, "harga barang","harga beli","purchase","buy","price");
-    const opPctIdx    = findIdx(header, "operational %","operasional %");
-    const opRpIdx     = findIdx(header, "operational rp","operasional rp");
-    const opModeIdx   = findIdx(header, "op mode","opmode","mode");
     const marginIdx   = findIdx(header, "margin");
     const discIdx     = findIdx(header, "discount","diskon","disc");
     const vchrIdx     = findIdx(header, "voucher","vchr");
@@ -2947,9 +2894,6 @@
       if (!sku && !name && !purchase) continue;
       const r = makeRow();
       r.sku = sku; r.name = name; r.purchase = purchase;
-      if (opPctIdx >= 0)  r.operational   = parseNumber(c[opPctIdx]) / 100;
-      if (opRpIdx >= 0)   r.operationalRp = parseNumber(c[opRpIdx]);
-      if (opModeIdx >= 0) r.operationalMode = (String(c[opModeIdx]||"").toLowerCase()==="rp") ? "rp" : "pct";
       if (marginIdx >= 0) r.margin     = parseNumber(c[marginIdx]) / 100;
       if (discIdx   >= 0) r.discount   = parseNumber(c[discIdx])   / 100;
       if (vchrIdx   >= 0) r.voucher    = parseNumber(c[vchrIdx])   / 100;
@@ -3192,9 +3136,6 @@
   function sanitizeRow(r) {
     return {
       name: r.name||"", sku: r.sku||"", varian: r.varian||"", purchase: r.purchase||0,
-      operational: r.operational!=null ? r.operational : 0,
-      operationalRp: r.operationalRp||0,
-      operationalMode: r.operationalMode==="rp" ? "rp" : "pct",
       margin: r.margin||0.10, marginRp: r.marginRp||0,
       marginMode: r.marginMode==="rp" ? "rp" : "pct",
       discount: r.discount||0, voucher: r.voucher||0,
@@ -3270,7 +3211,6 @@
   // ── LIST VIEW JS (v2) ─────────────────────────────────────────────────────
   let _lvView = 'spreadsheet';
   let _lvActiveIdx = null;   // row index in active sheet
-  let _lvOpMode = 'rp';      // current panel op mode
   let _lvMarginMode = 'pct'; // current panel margin mode
   let _lvToastTimer;
   let _lvAutoSaveTimer = null;
@@ -3524,14 +3464,6 @@
     document.getElementById('lv-f-sku').value   = r.sku  || '';
     document.getElementById('lv-f-harga').value = r.purchase || 0;
 
-    // Operational
-    _lvOpMode = r.operationalMode || 'pct';
-    document.getElementById('lv-f-op').value = _lvOpMode === 'rp'
-      ? (r.operationalRp || 0)
-      : +(((r.operational || 0) * 100).toFixed(2));
-    document.getElementById('lv-op-sfx').textContent = _lvOpMode === 'rp' ? '' : '%';
-    lvSetPmseg('op', _lvOpMode);
-
     document.getElementById('lv-f-hpp').value = lvFmt(c.cogs);
 
     // Margin
@@ -3577,23 +3509,6 @@
     document.getElementById('lv-panel').classList.add('open');
     document.getElementById('lv-overlay').classList.add('open');
     if (_lvSimOpen) lvUpdateSimPanel();
-  }
-
-  window.lvSetOpMode = function(mode) {
-    if (!getActiveSheet() || _lvActiveIdx === null) return;
-    const sh = getActiveSheet();
-    const r  = sh.rows[_lvActiveIdx]; if (!r) return;
-    const curV = parseFloat(document.getElementById('lv-f-op').value) || 0;
-    if (mode === 'pct' && _lvOpMode !== 'pct') {
-      r.operationalRp  = Math.round(curV);
-      r.operational    = r.purchase > 0 ? curV / r.purchase : 0;
-    } else if (mode === 'rp' && _lvOpMode !== 'rp') {
-      r.operational    = curV / 100;
-      r.operationalRp  = Math.round((r.purchase || 0) * curV / 100);
-    }
-    r.operationalMode = mode;
-    _lvOpMode = mode;
-    lvOpenPanel(_lvActiveIdx);
   };
 
   window.lvSetMarginMode = function(mode) {
@@ -3626,10 +3541,8 @@
     const sh = getActiveSheet(); if (!sh) return;
     const r  = sh.rows[_lvActiveIdx]; if (!r) return;
     const h  = parseFloat(document.getElementById('lv-f-harga').value) || 0;
-    const op = parseFloat(document.getElementById('lv-f-op').value)     || 0;
     const mg = parseFloat(document.getElementById('lv-f-margin').value) || 0;
-    const opV = _lvOpMode === 'rp' ? op : h * op / 100;
-    const hpp = h + opV;
+    const hpp = h;
     document.getElementById('lv-f-hpp').value = 'Rp ' + Math.round(hpp).toLocaleString('id-ID');
     let hjt;
     if (_lvMarginMode === 'pct') { const mp = mg/100; hjt = mp < 1 ? hpp/(1-mp) : hpp; }
@@ -3732,11 +3645,6 @@
     r.sku        = sv('lv-f-sku')  || r.sku;
     r.varian     = sv('lv-f-varian');
     r.purchase   = fv('lv-f-harga');
-    // Operational
-    const opV = fv('lv-f-op');
-    r.operationalMode = _lvOpMode;
-    if (_lvOpMode === 'rp') { r.operationalRp = Math.round(opV); r.operational = r.purchase > 0 ? opV / r.purchase : 0; }
-    else { r.operational = opV / 100; r.operationalRp = Math.round((r.purchase||0) * opV / 100); }
     // Margin
     const mgV = fv('lv-f-margin');
     r.marginMode = _lvMarginMode;
@@ -3788,10 +3696,6 @@
     r.sku     = sv('lv-f-sku');
     r.varian  = sv('lv-f-varian');
     r.purchase = fv('lv-f-harga');
-    const opV = fv('lv-f-op');
-    r.operationalMode = _lvOpMode;
-    if (_lvOpMode === 'rp') { r.operationalRp = Math.round(opV); r.operational = r.purchase > 0 ? opV / r.purchase : 0; }
-    else { r.operational = opV / 100; r.operationalRp = Math.round((r.purchase||0) * opV / 100); }
     const mgV = fv('lv-f-margin');
     r.marginMode = _lvMarginMode;
     if (_lvMarginMode === 'rp') { r.marginRp = Math.round(mgV); r.margin = 0; }
