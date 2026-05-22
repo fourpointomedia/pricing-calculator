@@ -497,8 +497,7 @@
     --col-remove-w:      28px;
     --col-name-w:        180px;
     --col-sku-w:         90px;
-    --col-harga-w:       104px;
-    --col-hpp-w:         96px;
+    --col-hpp-w:         124px;
     --col-margin-w:      96px;
     --col-hjt-w:         132px;
     --col-discount-w:    76px;
@@ -517,9 +516,8 @@
   .col-remove      { left: 0; width: var(--col-remove-w); min-width: var(--col-remove-w); max-width: var(--col-remove-w); text-align: center; padding: 6px 2px; }
   .col-name        { left: var(--col-remove-w); width: var(--col-name-w); min-width: var(--col-name-w); max-width: var(--col-name-w); border-right: 1px solid var(--line); }
   .col-sku         { left: calc(var(--col-remove-w) + var(--col-name-w)); width: var(--col-sku-w); min-width: var(--col-sku-w); max-width: var(--col-sku-w); box-shadow: 2px 0 6px rgba(0,0,0,.25); }
-  .col-harga       { width: var(--col-harga-w); min-width: var(--col-harga-w); max-width: var(--col-harga-w); text-align: right; }
-  .col-harga .cell-input.price { text-align: right; }
   .col-hpp         { width: var(--col-hpp-w); min-width: var(--col-hpp-w); max-width: var(--col-hpp-w); text-align: right; }
+  td.col-hpp .cell-input { color: var(--accent-2); text-align: right; font-family: var(--font-mono); }
   .col-margin      { width: var(--col-margin-w); min-width: var(--col-margin-w); max-width: var(--col-margin-w); text-align: right; }
   .col-hjt         { width: var(--col-hjt-w); min-width: var(--col-hjt-w); max-width: var(--col-hjt-w); text-align: right; }
   .col-discount    { width: var(--col-discount-w); min-width: var(--col-discount-w); max-width: var(--col-discount-w); text-align: right; }
@@ -575,7 +573,7 @@
   }
   thead th.col-roas { vertical-align: bottom; text-align: right; }
   /* right-align formula outputs in numeric columns */
-  td.col-hpp, td.col-hjt, td.col-trx, td.col-ongkir-rp, td.col-mktpct, td.col-harga { text-align: right; }
+  td.col-hpp, td.col-hjt, td.col-trx, td.col-ongkir-rp, td.col-mktpct { text-align: right; }
   td.col-margin, td.col-discount, td.col-voucher, td.col-layanan,
   td.col-preorder, td.col-ongkir, td.col-promo, td.col-roas { text-align: right; }
   /* align input text to the right within numeric cells */
@@ -1450,7 +1448,7 @@
           <div class="popup-title">Urutkan Berdasarkan</div>
           <div class="sort-item" data-col="name">Nama Produk <span class="sort-dir"></span></div>
           <div class="sort-item" data-col="sku">SKU <span class="sort-dir"></span></div>
-          <div class="sort-item" data-col="purchase">Harga Barang <span class="sort-dir"></span></div>
+          <div class="sort-item" data-col="purchase">HPP <span class="sort-dir"></span></div>
           <div class="sort-item" data-col="setPrice">Set Price (Final) <span class="sort-dir"></span></div>
           <div class="sort-item" data-col="margin">Margin % <span class="sort-dir"></span></div>
           <div class="sort-item" data-col="roas">ROAS <span class="sort-dir"></span></div>
@@ -1479,7 +1477,7 @@
             <th class="col-remove"></th>
             <th class="col-name"></th>
             <th class="col-sku"></th>
-            <th colspan="4"></th>
+            <th colspan="3"></th>
             <th class="group" colspan="2">Promotion Set</th>
             <th class="group" colspan="6">Biaya Layanan</th>
             <th></th>
@@ -1493,9 +1491,8 @@
             <th class="col-remove"></th>
             <th class="col-name"><input type="checkbox" class="master-cb" id="cb-all" title="Pilih semua" /> Nama Produk</th>
             <th class="col-sku">SKU</th>
-            <th class="col-harga">Harga Barang</th>
             <th class="col-hpp">HPP</th>
-            <th class="col-margin">Margin %</th>
+            <th class="col-margin">Margin</th>
             <th class="col-hjt">Harga Jual Target</th>
             <th class="col-discount">Discount %</th>
             <th class="col-voucher">Voucher %</th>
@@ -1526,7 +1523,7 @@
             <th class="lv-chk"><input type="checkbox" id="lv-cb-all" style="accent-color:var(--accent);cursor:pointer"/></th>
             <th style="min-width:220px">Nama Produk</th>
             <th class="lv-sku" style="width:130px;text-align:right">SKU</th>
-            <th class="lv-harga" style="width:140px;text-align:right">Harga Barang</th>
+            <th class="lv-harga" style="width:140px;text-align:right">HPP</th>
             <th class="lv-hpp" style="width:155px;text-align:right">Harga Jual Target</th>
             <th class="lv-sp" style="width:120px;text-align:right">Set Price</th>
             <th class="lv-margin" style="width:120px;text-align:right">Margin %</th>
@@ -1585,7 +1582,7 @@
       <div class="frow full"><div class="field"><div class="flabel">Varian / Kategori</div><input class="finput" id="lv-f-varian" type="text" placeholder="contoh: Kursi, Meja, Rak…" oninput="lvPanelChange()"/></div></div>
       <div class="frow">
         <div class="field"><div class="flabel">SKU</div><input class="finput" id="lv-f-sku" type="text" oninput="lvPanelChange()"/></div>
-        <div class="field"><div class="flabel">Harga Barang</div><input class="finput" id="lv-f-harga" type="number" min="0" step="500" oninput="lvPanelChange()"/></div>
+        <div class="field"><div class="flabel">HPP</div><input class="finput" id="lv-f-harga" type="number" min="0" step="500" oninput="lvPanelChange()"/></div>
       </div>
     </div>
     <div class="fgroup">
@@ -2158,8 +2155,7 @@
         </div>
       </td>
       <td class="col-sku"><input class="cell-input sku" data-f="sku" data-i="${i}" value="${esc(r.sku)}" placeholder="SKU…" /></td>
-      <td class="col-harga"><input class="cell-input price" type="number" data-f="purchase" data-i="${i}" value="${r.purchase||""}" min="0" step="500" placeholder="0" /></td>
-      <td class="col-hpp" data-out="cogs">${rp(c.cogs)}</td>
+      <td class="col-hpp"><input class="cell-input hpp-inp" type="text" value="${rp(c.cogs)}" data-raw="${r.purchase||0}" data-i="${i}" onfocus="hppFocus(this)" onblur="hppBlur(this,${i})" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}else if(event.key==='Escape'){this.value=this.dataset.raw;this.blur();}event.stopPropagation()" /></td>
       <td class="col-margin">
         <div class="op-cell">
           <input class="cell-input" type="number" data-f="${r.marginMode==='rp'?'marginRp':'margin'}" data-i="${i}" ${r.marginMode!=='rp'?'data-pct="1"':''} value="${r.marginMode==='rp'?(r.marginRp||0):pv(r.margin)}" step="${r.marginMode==='rp'?'500':'0.5'}" min="0" placeholder="0" />
@@ -2202,6 +2198,28 @@
     const s = tr.querySelector('[data-out="status"]');
     if (s) { s.textContent = em; s.title = lbl; }
   }
+
+  // ── HPP formatted input ──────────────────────────────────────────────────
+  window.hppFocus = function(inp) {
+    inp.type = 'number';
+    inp.step = 500; inp.min = 0;
+    inp.value = parseFloat(inp.dataset.raw) || 0;
+    setTimeout(() => inp.select(), 0);
+  };
+  window.hppBlur = function(inp, i) {
+    const sh = getActiveSheet(); if (!sh) return;
+    const r = sh.rows[i]; if (!r) return;
+    const origVal = parseFloat(inp.dataset.raw) || 0;
+    const newVal  = parseFloat(inp.value) || 0;
+    if (newVal !== origVal) pushHistory();
+    r.purchase = newVal;
+    inp.dataset.raw = newVal;
+    inp.type = 'text';
+    inp.value = rp(newVal);
+    const tr = inp.closest('tr');
+    if (tr) updateComputedCells(tr, r);
+    updateSummary(); persist();
+  };
 
   // ── Row event delegation ─────────────────────────────────────────────────
   document.addEventListener("mousedown", function (e) {
@@ -2824,7 +2842,7 @@
     const st = getActiveStore(); if (!st) { alert("Tidak ada toko aktif."); return; }
     const wb = XLSX.utils.book_new();
     st.sheets.forEach((sh, sidx) => {
-      const H = ["SKU","Nama Produk","Harga Barang",
+      const H = ["SKU","Nama Produk","HPP",
                  "Margin %","Discount %","Voucher %","Layanan %","Pre-Order %","Ongkir Xtra %","Promo Xtra %",
                  "TRX Fee","ROAS","Set Price (Final)"];
       const body = sh.rows.map(r => {
@@ -2874,7 +2892,7 @@
     const header = aoa[0].map(h => String(h || "").toLowerCase().trim());
     const skuIdx      = findIdx(header, "sku");
     const nameIdx     = findIdx(header, "nama","name","produk","product");
-    const purchaseIdx = findIdx(header, "harga barang","harga beli","purchase","buy","price");
+    const purchaseIdx = findIdx(header, "hpp","harga barang","harga beli","purchase","buy","price");
     const marginIdx   = findIdx(header, "margin");
     const discIdx     = findIdx(header, "discount","diskon","disc");
     const vchrIdx     = findIdx(header, "voucher","vchr");
@@ -2986,7 +3004,7 @@
             if (rows == null) continue; // unknown format
             sheets.push({ name, rows });
           }
-          if (!sheets.length) { alert("Format tidak dikenali.\nHeader wajib: 'Nama Produk' dan/atau 'Harga Barang'."); e.target.value=""; return; }
+          if (!sheets.length) { alert("Format tidak dikenali.\nHeader wajib: 'Nama Produk' dan/atau 'HPP'."); e.target.value=""; return; }
           importIntoActiveStore(sheets);
         } catch(err) { alert("Gagal baca Excel: " + err.message); }
         e.target.value = "";
@@ -2996,7 +3014,7 @@
       reader.onload = function (ev) {
         try {
           const rows = importCSVText(String(ev.target.result||""));
-          if (rows == null) { alert("Format tidak dikenali. Header wajib: 'Nama Produk' dan/atau 'Harga Barang'."); e.target.value=""; return; }
+          if (rows == null) { alert("Format tidak dikenali. Header wajib: 'Nama Produk' dan/atau 'HPP'."); e.target.value=""; return; }
           importIntoActiveStore([{ name: file.name.replace(/\.[^.]+$/, ""), rows }]);
         } catch(err) { alert("Gagal baca CSV: " + err.message); }
         e.target.value = "";
