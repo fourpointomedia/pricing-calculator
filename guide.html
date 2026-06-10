@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Panduan Penggunaan — Pricing Calculator</title>
+<style>
+  :root {
+    --ink-0: #111827;
+    --ink-1: #374151;
+    --ink-2: #6b7280;
+    --ink-3: #9ca3af;
+    --bg:    #ffffff;
+    --bg-1:  #f9fafb;
+    --bg-2:  #f3f4f6;
+    --line:  #e5e7eb;
+    --line-2:#d1d5db;
+    --accent:#047857;
+    --accent-soft: #ecfdf5;
+    --accent-mid:  #059669;
+    --blue:  #1d4ed8;
+    --blue-soft: #eff6ff;
+    --red:   #b91c1c;
+    --red-soft:  #fef2f2;
+    --yellow:#92400e;
+    --yellow-soft: #fffbeb;
+    --radius: 8px;
+    --shadow: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    color: var(--ink-1);
+    background: var(--bg);
+  }
+
+  /* ── Layout ── */
+  .layout {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    min-height: 100vh;
+  }
+
+  nav {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    border-right: 1px solid var(--line);
+    padding: 32px 0 48px;
+    background: var(--bg-1);
+    flex-shrink: 0;
+  }
+
+  .nav-logo {
+    padding: 0 20px 24px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 16px;
+  }
+  .nav-logo .product { font-size: 11px; text-transform: uppercase; letter-spacing: .8px; color: var(--ink-3); font-weight: 600; margin-bottom: 3px; }
+  .nav-logo .title   { font-size: 14px; font-weight: 700; color: var(--ink-0); }
+
+  .nav-section { padding: 6px 20px 2px; font-size: 10.5px; text-transform: uppercase; letter-spacing: .7px; color: var(--ink-3); font-weight: 700; margin-top: 12px; }
+
+  nav a {
+    display: block;
+    padding: 6px 20px;
+    font-size: 13.5px;
+    color: var(--ink-2);
+    text-decoration: none;
+    border-radius: 0;
+    transition: background .1s, color .1s;
+  }
+  nav a:hover { background: var(--bg-2); color: var(--ink-0); }
+  nav a.active { background: var(--accent-soft); color: var(--accent); font-weight: 600; border-right: 2px solid var(--accent); }
+
+  main {
+    max-width: 820px;
+    padding: 48px 52px 96px;
+  }
+
+  /* ── Typography ── */
+  h1 { font-size: 28px; font-weight: 800; color: var(--ink-0); margin: 0 0 8px; letter-spacing: -.4px; }
+  h2 { font-size: 20px; font-weight: 700; color: var(--ink-0); margin: 48px 0 14px; padding-top: 48px; border-top: 1px solid var(--line); letter-spacing: -.2px; }
+  h2:first-of-type { margin-top: 32px; }
+  h3 { font-size: 15px; font-weight: 700; color: var(--ink-0); margin: 28px 0 10px; }
+  h4 { font-size: 13px; font-weight: 700; color: var(--ink-0); margin: 20px 0 8px; text-transform: uppercase; letter-spacing: .4px; }
+  p  { margin: 0 0 14px; }
+  ul, ol { margin: 0 0 14px; padding-left: 22px; }
+  li { margin-bottom: 5px; }
+
+  .lead { font-size: 16px; color: var(--ink-2); margin-bottom: 0; }
+
+  .version {
+    display: inline-block;
+    font-size: 11px;
+    background: var(--bg-2);
+    border: 1px solid var(--line-2);
+    border-radius: 20px;
+    padding: 2px 10px;
+    color: var(--ink-2);
+    margin-top: 6px;
+    margin-bottom: 28px;
+  }
+
+  /* ── Components ── */
+  .card {
+    background: var(--bg-1);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    margin-bottom: 16px;
+  }
+  .card-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--ink-2); margin-bottom: 10px; }
+
+  .callout {
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    margin-bottom: 16px;
+    border-left: 3px solid;
+    font-size: 14px;
+  }
+  .callout.info   { background: var(--blue-soft);   border-color: var(--blue);   color: #1e3a8a; }
+  .callout.tip    { background: var(--accent-soft);  border-color: var(--accent); color: #065f46; }
+  .callout.warn   { background: var(--yellow-soft);  border-color: #d97706;       color: var(--yellow); }
+  .callout.danger { background: var(--red-soft);     border-color: var(--red);    color: var(--red); }
+  .callout strong { display: block; margin-bottom: 4px; font-size: 12px; text-transform: uppercase; letter-spacing: .4px; }
+
+  /* ── Status badges ── */
+  .badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    vertical-align: middle;
+  }
+  .badge-blue   { background: #dbeafe; color: #1d4ed8; }
+  .badge-green  { background: #d1fae5; color: #065f46; }
+  .badge-red    { background: #fee2e2; color: #991b1b; }
+
+  /* ── Table ── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+    margin-bottom: 20px;
+  }
+  thead th {
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    padding: 8px 12px;
+    text-align: left;
+    font-size: 11.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+    color: var(--ink-2);
+  }
+  tbody td {
+    border: 1px solid var(--line);
+    padding: 9px 12px;
+    vertical-align: top;
+  }
+  tbody tr:nth-child(even) td { background: var(--bg-1); }
+  td code, th code {
+    background: var(--bg-2);
+    border: 1px solid var(--line-2);
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-family: "SF Mono", Menlo, "Courier New", monospace;
+    font-size: 12px;
+    color: var(--ink-0);
+  }
+
+  /* ── Formula block ── */
+  .formula-block {
+    background: var(--bg-1);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    font-family: "SF Mono", Menlo, "Courier New", monospace;
+    font-size: 12.5px;
+    line-height: 2;
+    margin-bottom: 16px;
+    overflow-x: auto;
+    color: var(--ink-0);
+  }
+  .formula-block .comment { color: var(--ink-3); }
+  .formula-block .highlight { color: var(--accent); font-weight: 700; }
+
+  /* ── Key-value list ── */
+  .kv-list { display: grid; grid-template-columns: 180px 1fr; gap: 0; margin-bottom: 14px; }
+  .kv-list dt {
+    padding: 7px 12px 7px 0;
+    font-weight: 600;
+    color: var(--ink-0);
+    font-size: 13.5px;
+    border-bottom: 1px solid var(--line);
+  }
+  .kv-list dd {
+    margin: 0;
+    padding: 7px 0;
+    color: var(--ink-1);
+    font-size: 13.5px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  /* ── Steps ── */
+  .steps { counter-reset: step; list-style: none; padding: 0; margin: 0 0 16px; }
+  .steps li {
+    counter-increment: step;
+    padding: 10px 0 10px 44px;
+    position: relative;
+    border-bottom: 1px solid var(--line);
+    font-size: 14px;
+  }
+  .steps li:last-child { border-bottom: none; }
+  .steps li::before {
+    content: counter(step);
+    position: absolute;
+    left: 0;
+    top: 10px;
+    width: 26px;
+    height: 26px;
+    background: var(--accent);
+    color: #fff;
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .steps li strong { display: block; margin-bottom: 2px; color: var(--ink-0); }
+
+  /* ── Chip visual ── */
+  .chip-demo {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--bg-2);
+    border: 1px solid var(--line-2);
+    border-radius: 20px;
+    padding: 3px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink-0);
+    vertical-align: middle;
+    margin: 0 2px;
+  }
+  .chip-demo.active { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+
+  /* ── TOC number ── */
+  .section-num {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--bg-2);
+    border: 1px solid var(--line-2);
+    font-size: 11px;
+    font-weight: 700;
+    text-align: center;
+    line-height: 22px;
+    color: var(--ink-2);
+    margin-right: 8px;
+    vertical-align: middle;
+    flex-shrink: 0;
+  }
+
+  hr { border: none; border-top: 1px solid var(--line); margin: 32px 0; }
+
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+    nav { position: static; height: auto; border-right: none; border-bottom: 1px solid var(--line); }
+    main { padding: 32px 24px 64px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+<!-- ── Sidebar Navigation ── -->
+<nav>
+  <div class="nav-logo">
+    <div class="product">4.0 Media</div>
+    <div class="title">Pricing Calculator</div>
+  </div>
+
+  <div class="nav-section">Mulai dari sini</div>
+  <a href="#intro">Pengenalan</a>
+  <a href="#navigation">Navigasi Dasar</a>
+
+  <div class="nav-section">Cara Kerja</div>
+  <a href="#params">Parameter Global</a>
+  <a href="#columns">Kolom Tabel</a>
+  <a href="#status">Indikator Status</a>
+
+  <div class="nav-section">Fitur</div>
+  <a href="#simulation">Simulasi What-If</a>
+  <a href="#shopee">Biaya Layanan Shopee</a>
+  <a href="#ai-insight">AI Insight</a>
+  <a href="#tools">Filter, Cari, Urutkan</a>
+  <a href="#import-export">Import & Export</a>
+  <a href="#views">Tampilan List & Spreadsheet</a>
+
+  <div class="nav-section">Referensi</div>
+  <a href="#faq">Pertanyaan Umum</a>
+</nav>
+
+<!-- ── Main Content ── -->
+<main>
+
+  <!-- HEADER -->
+  <h1>Panduan Penggunaan</h1>
+  <p class="lead">Pricing Calculator adalah alat kalkulasi harga jual untuk marketplace. Dokumen ini menjelaskan cara kerja setiap fitur dan cara membaca hasilnya.</p>
+  <div class="version">Versi index-minimalist &mdash; Juni 2026</div>
+
+  <!-- 1. PENGENALAN -->
+  <h2 id="intro">Pengenalan</h2>
+  <p>Calculator ini dirancang untuk menjawab satu pertanyaan inti: <strong>berapa harga yang harus dipasang di marketplace agar produk tetap untung setelah semua biaya dipotong?</strong></p>
+  <p>Biaya yang dimaksud mencakup margin keuntungan, diskon dan voucher yang seller tanggung, biaya layanan platform, biaya program gratis ongkir, biaya transaksi, biaya iklan (ROAS), dan lain-lain. Calculator ini menghitung semua komponen sekaligus dan menghasilkan satu angka: <strong>Set Price</strong> — harga yang perlu dipasang di listing produk.</p>
+
+  <div class="callout tip">
+    <strong>Prinsip Dasar</strong>
+    Set Price dihitung dari dalam ke luar. Kamu menentukan berapa keuntungan yang ingin didapat (Margin), lalu calculator memundurkan semua biaya untuk menemukan harga listing yang harus dipasang.
+  </div>
+
+  <!-- 2. NAVIGASI -->
+  <h2 id="navigation">Navigasi Dasar</h2>
+
+  <h3>Toko (Store)</h3>
+  <p>Setiap akun bisa memiliki hingga <strong>3 toko</strong>. Masing-masing toko memiliki pengaturan biaya layanan sendiri-sendiri, sehingga kamu bisa mengelola toko dengan biaya yang berbeda (misalnya, toko regular dan toko Star Seller memiliki Biaya Layanan yang berbeda).</p>
+  <ul>
+    <li>Tambah toko baru dengan tombol <strong>+</strong> di sidebar kiri.</li>
+    <li>Klik nama toko untuk berpindah antar toko.</li>
+    <li>Klik ganda nama toko untuk mengganti namanya.</li>
+    <li>Klik ikon <strong>X</strong> kecil di samping nama toko untuk menghapus toko tersebut.</li>
+  </ul>
+
+  <h3>Lembar (Sheet)</h3>
+  <p>Di dalam setiap toko, kamu bisa membuat hingga <strong>3 lembar (sheet)</strong> untuk mengorganisir produk berdasarkan kategori, misalnya: Sheet 1 untuk Elektronik, Sheet 2 untuk Fashion, Sheet 3 untuk Peralatan Rumah.</p>
+  <ul>
+    <li>Tab lembar ditampilkan di bagian bawah toolbar.</li>
+    <li>Klik tab untuk berpindah lembar.</li>
+    <li>Klik ganda tab untuk mengganti namanya.</li>
+    <li>Tombol <strong>+</strong> di samping tab untuk menambah lembar baru.</li>
+  </ul>
+
+  <h3>Produk (Baris Data)</h3>
+  <p>Setiap lembar bisa menampung hingga <strong>500 baris produk</strong>, dengan tampilan paginated 100 baris per halaman.</p>
+
+  <!-- 3. PARAMETER GLOBAL -->
+  <h2 id="params">Parameter Global</h2>
+  <p>Di bagian atas tabel terdapat deretan chip atau tombol parameter. Parameter ini berlaku secara global untuk semua produk di lembar yang aktif, kecuali ada produk yang diatur secara individual.</p>
+
+  <div class="callout info">
+    <strong>Cara Mengatur Parameter</strong>
+    Klik chip parameter (misalnya <span class="chip-demo active">ROAS 10</span>) untuk membuka popup pengaturan. Geser tombol di dalam popup untuk mengaktifkan atau menonaktifkan parameter tersebut untuk semua produk. Nilai bisa diubah langsung di input field atau dengan tombol +/-.
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th>Satuan</th>
+        <th>Default</th>
+        <th>Keterangan</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>ROAS</strong></td>
+        <td>Rasio</td>
+        <td>10</td>
+        <td>Return on Ad Spend. Menentukan berapa persen dari Set Price yang dialokasikan untuk iklan. ROAS 10 berarti setiap Rp 1 iklan menghasilkan Rp 10 penjualan, setara biaya iklan 11,1% (termasuk PPN 11%).</td>
+      </tr>
+      <tr>
+        <td><strong>Margin</strong></td>
+        <td>% atau Rp</td>
+        <td>10%</td>
+        <td>Keuntungan yang ingin diperoleh dari Harga Pokok Produksi (HPP). Bisa diatur dalam persen atau nominal Rupiah.</td>
+      </tr>
+      <tr>
+        <td><strong>Discount</strong></td>
+        <td>%</td>
+        <td>10%</td>
+        <td>Besaran diskon dalam program Promo Seller di marketplace. Merupakan subsidi diskon harga yang ditanggung penjual. Masuk ke dalam Promotion Set.</td>
+      </tr>
+      <tr>
+        <td><strong>Voucher</strong></td>
+        <td>%</td>
+        <td>5%</td>
+        <td>Persentase nilai voucher yang ditanggung penjual dari nilai transaksi. Masuk ke dalam Promotion Set.</td>
+      </tr>
+      <tr>
+        <td><strong>Layanan</strong></td>
+        <td>%</td>
+        <td>10%</td>
+        <td>Biaya layanan platform marketplace (service fee). Dipotong dari nilai transaksi setiap kali ada penjualan. Di Shopee, besarannya tergantung tipe toko dan kategori produk.</td>
+      </tr>
+      <tr>
+        <td><strong>Pre-Order</strong></td>
+        <td>%</td>
+        <td>0%</td>
+        <td>Biaya tambahan yang dikenakan marketplace untuk produk yang dijual dengan sistem Pre-Order. Nonaktif secara default.</td>
+      </tr>
+      <tr>
+        <td><strong>Ongkir Xtra</strong></td>
+        <td>%</td>
+        <td>6%</td>
+        <td>Biaya subsidi program Gratis Ongkos Kirim yang ditanggung penjual. Di Shopee, ini adalah biaya Program Gratis Ongkir Xtra (GOX) yang besarannya bervariasi per program.</td>
+      </tr>
+      <tr>
+        <td><strong>Promo Xtra</strong></td>
+        <td>%</td>
+        <td>4.5%</td>
+        <td>Biaya tambahan saat mengikuti program promo spesial marketplace, seperti Flash Sale atau campaign tertentu.</td>
+      </tr>
+      <tr>
+        <td><strong>TRX Fee</strong></td>
+        <td>Rp</td>
+        <td>Rp 1.250</td>
+        <td>Biaya transaksi tetap (flat) per pesanan yang dikenakan marketplace. Di Shopee, ini adalah Biaya Administrasi Checkout yang saat ini sebesar Rp 1.000–Rp 1.500 tergantung metode pembayaran.</td>
+      </tr>
+      <tr>
+        <td><strong>Ongkir</strong></td>
+        <td>Rp</td>
+        <td>0</td>
+        <td>Biaya ongkos kirim tetap dalam Rupiah yang ditanggung penjual per pesanan. Nonaktif secara default. Gunakan jika ada kontribusi ongkir flat yang wajib ditanggung seller.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout warn">
+    <strong>Perhatian: Chip Nonaktif</strong>
+    Chip yang berwarna abu-abu (tidak aktif) berarti parameter tersebut tidak diikutsertakan dalam kalkulasi. Klik chip untuk mengaktifkan. Parameter Pre-Order dan Ongkir (Rp) nonaktif secara default karena tidak selalu digunakan.
+  </div>
+
+  <!-- 4. KOLOM TABEL -->
+  <h2 id="columns">Kolom Tabel</h2>
+  <p>Setiap baris produk memiliki kolom sebagai berikut:</p>
+
+  <h3>Kolom Input</h3>
+  <table>
+    <thead>
+      <tr><th>Kolom</th><th>Keterangan</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Nama Produk</strong></td>
+        <td>Nama produk yang bebas diisi. Bisa digunakan untuk pencarian dan identifikasi.</td>
+      </tr>
+      <tr>
+        <td><strong>SKU</strong></td>
+        <td>Kode SKU produk. Opsional, bisa dikosongkan.</td>
+      </tr>
+      <tr>
+        <td><strong>HPP</strong> (Harga Pokok Produksi)</td>
+        <td>Harga beli atau harga pokok produk. Ini adalah angka dasar untuk semua kalkulasi. Bisa ditambahkan biaya operasional (persentase atau nominal Rupiah) dengan menekan ikon yang ada di baris produk.</td>
+      </tr>
+      <tr>
+        <td><strong>Margin</strong></td>
+        <td>Margin keuntungan untuk produk ini. Secara default mengikuti parameter global, tapi bisa diubah per produk.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Kolom Hasil Kalkulasi</h3>
+  <table>
+    <thead>
+      <tr><th>Kolom</th><th>Keterangan</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Harga Jual Target</strong> (HJT)</td>
+        <td>Harga jual minimal yang diperlukan agar margin terpenuhi, sebelum biaya marketplace diperhitungkan. Rumus: <code>HPP / (1 - Margin%)</code></td>
+      </tr>
+      <tr>
+        <td><strong>Discount % / Voucher %</strong></td>
+        <td>Nilai dari parameter global yang diterapkan ke produk ini. Bisa diubah per produk jika diperlukan.</td>
+      </tr>
+      <tr>
+        <td><strong>Layanan % / Pre-Order % / Ongkir Xtra % / Promo Xtra %</strong></td>
+        <td>Biaya-biaya platform yang diterapkan. Nilai global bisa dioverride per produk.</td>
+      </tr>
+      <tr>
+        <td><strong>TRX Fee / Ongkir</strong></td>
+        <td>Biaya tetap per transaksi dalam Rupiah.</td>
+      </tr>
+      <tr>
+        <td><strong>ROAS</strong></td>
+        <td>ROAS untuk produk ini. Mengikuti global, bisa diubah per produk jika anggaran iklan berbeda.</td>
+      </tr>
+      <tr>
+        <td><strong>Marketing %</strong></td>
+        <td>Persentase biaya iklan dari Set Price. Dihitung otomatis dari ROAS: <code>(1/ROAS) × 1.11</code>. Angka 1.11 adalah faktor PPN 11% pada biaya iklan.</td>
+      </tr>
+      <tr>
+        <td><strong>Set Price</strong></td>
+        <td>Harga akhir yang harus dipasang di listing marketplace. Ini adalah kolom utama yang menjadi hasil dari seluruh kalkulasi. Nilai dibulatkan ke atas sesuai pengaturan pembulatan toko.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Kolom Simulasi (Aktual)</h3>
+  <p>Kolom ini hanya muncul saat mode <strong>Simulasi What-If</strong> diaktifkan. Lihat bagian Simulasi untuk penjelasan lebih lanjut.</p>
+  <table>
+    <thead>
+      <tr><th>Kolom</th><th>Keterangan</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Act Disc % / Act Vchr %</strong></td>
+        <td>Diskon dan voucher aktual yang digunakan pembeli dalam skenario simulasi.</td>
+      </tr>
+      <tr>
+        <td><strong>Harga Pembeli</strong></td>
+        <td>Harga yang dibayar pembeli setelah diskon dan voucher diterapkan ke Set Price.</td>
+      </tr>
+      <tr>
+        <td><strong>Sale Rev</strong></td>
+        <td>Pendapatan bersih penjual setelah semua biaya marketplace dan subsidi promo dipotong dari nilai transaksi aktual.</td>
+      </tr>
+      <tr>
+        <td><strong>Status</strong></td>
+        <td>Indikator apakah transaksi aktual menguntungkan, impas, atau merugi. Lihat bagian Indikator Status.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Pengaturan Pembulatan</h3>
+  <p>Dropdown pembulatan di toolbar (defaultnya Rp 100) mengatur ke kelipatan berapa Set Price dibulatkan ke atas. Pilihan tersedia mulai dari Rp 1 (tanpa pembulatan) hingga Rp 5.000. Pembulatan ke atas (ceiling) dipilih agar hasil tidak di bawah angka yang dibutuhkan.</p>
+
+  <!-- 6. INDIKATOR STATUS -->
+  <h2 id="status">Indikator Status</h2>
+  <p>Indikator status muncul di kolom <strong>STAT</strong> pada tabel dan sebagai lingkaran berwarna di sebelah nama produk. Status dihitung saat mode Simulasi aktif dan membandingkan pendapatan aktual dengan Harga Jual Target.</p>
+
+  <table>
+    <thead>
+      <tr><th>Indikator</th><th>Arti</th><th>Kondisi</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="badge badge-blue">Untung</span></td>
+        <td><strong>Untung</strong></td>
+        <td>Pendapatan aktual (Sale Rev) melebihi Harga Jual Target lebih dari Rp 0,50. Transaksi ini menghasilkan keuntungan di atas target margin.</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-green">Impas</span></td>
+        <td><strong>Impas</strong></td>
+        <td>Pendapatan aktual mendekati Harga Jual Target (selisih dalam rentang -Rp 0,50 sampai +Rp 0,50). Biaya tertutup, margin hampir terpenuhi.</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-red">Rugi</span></td>
+        <td><strong>Rugi</strong></td>
+        <td>Pendapatan aktual di bawah Harga Jual Target lebih dari Rp 0,50. Artinya biaya aktual (termasuk diskon/voucher pembeli) melebihi yang diperhitungkan.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout warn">
+    <strong>Status Muncul Saat Simulasi Aktif</strong>
+    Status BLUE/GREEN/RED baru terlihat lengkap saat mode Simulasi What-If diaktifkan. Tanpa simulasi, kolom status tersembunyi karena nilai aktual belum dimasukkan.
+  </div>
+
+  <!-- 7. SIMULASI WHAT-IF -->
+  <h2 id="simulation">Simulasi What-If</h2>
+  <p>Fitur simulasi memungkinkan kamu untuk menguji skenario aktual: bagaimana jika pembeli menggunakan diskon atau voucher tertentu? Apakah transaksi tersebut tetap untung?</p>
+
+  <h3>Cara Mengaktifkan</h3>
+  <ol class="steps">
+    <li>
+      <strong>Klik tombol "Simulasi What-If"</strong>
+      Tombol ini ada di toolbar utama di bagian atas. Klik sekali untuk mengaktifkan, klik lagi untuk menonaktifkan.
+    </li>
+    <li>
+      <strong>Kolom simulasi muncul di tabel</strong>
+      Kolom Act Disc %, Act Vchr %, Harga Pembeli, Sale Rev, dan Status akan tampil di sisi kanan tabel.
+    </li>
+    <li>
+      <strong>Isi Act Disc % dan Act Vchr %</strong>
+      Masukkan persentase diskon dan voucher yang benar-benar digunakan pembeli. Misalnya, jika pembeli menggunakan voucher 10%, isi Act Vchr dengan 10.
+    </li>
+    <li>
+      <strong>Baca hasilnya</strong>
+      Calculator menghitung Harga Pembeli dan Sale Rev secara otomatis. Status menunjukkan apakah transaksi tersebut untung, impas, atau rugi.
+    </li>
+  </ol>
+
+  <h3>Kapan Perlu Menggunakan Simulasi</h3>
+  <ul>
+    <li>Saat kamu ingin mengecek apakah promo yang sedang berjalan masih menguntungkan.</li>
+    <li>Saat ada campaign marketplace (Flash Sale, Hari Belanja, dsb.) dan kamu ingin tahu dampaknya ke margin.</li>
+    <li>Saat pembeli mengklaim voucher yang lebih besar dari perkiraan.</li>
+    <li>Untuk membandingkan skenario: "jika voucher 10%" vs "jika voucher 15%", produk mana yang masih untung?</li>
+  </ul>
+
+  <div class="callout tip">
+    <strong>Panel Simulasi di List View</strong>
+    Saat menggunakan tampilan List, klik salah satu baris produk untuk membuka panel detail di sisi kanan layar. Panel ini menampilkan semua komponen kalkulasi secara rinci termasuk simulasi untuk produk yang dipilih.
+  </div>
+
+  <!-- 8. BIAYA LAYANAN SHOPEE -->
+  <h2 id="shopee">Biaya Layanan Shopee</h2>
+  <p>Shopee memotong beberapa komponen biaya dari setiap penjualan. Setiap komponen biaya Shopee dipetakan ke parameter tertentu di calculator. Besaran angkanya harus diambil langsung dari akun Shopee kamu karena berbeda-beda tergantung tipe toko, kategori produk, dan program yang diikuti.</p>
+
+  <div class="callout danger">
+    <strong>Ambil Angka dari Shopee Seller Centre, Bukan dari Dokumen Ini</strong>
+    Biaya Shopee berubah sewaktu-waktu dan berbeda per toko. Jangan mengisi parameter berdasarkan angka yang kamu baca dari artikel atau panduan pihak ketiga. Selalu cek langsung di Seller Centre &rarr; Keuangan &rarr; Biaya Layanan untuk mendapatkan angka yang berlaku untuk tokomu saat ini.
+  </div>
+
+  <h3>Pemetaan Komponen Biaya ke Parameter Calculator</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Komponen Biaya di Shopee</th>
+        <th>Parameter Calculator</th>
+        <th>Cara Cek</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Biaya Layanan (Service Fee)</td>
+        <td><strong>Layanan %</strong></td>
+        <td>Seller Centre &rarr; Keuangan &rarr; Biaya Layanan. Berbeda per kategori produk dan tipe toko (Regular, Star Seller, Mall).</td>
+      </tr>
+      <tr>
+        <td>Biaya Program Gratis Ongkir</td>
+        <td><strong>Ongkir Xtra %</strong></td>
+        <td>Seller Centre &rarr; Program &rarr; Gratis Ongkir Xtra. Hanya berlaku jika tokomu terdaftar di program ini.</td>
+      </tr>
+      <tr>
+        <td>Biaya Program Promo / Flash Sale</td>
+        <td><strong>Promo Xtra %</strong></td>
+        <td>Seller Centre &rarr; Program promosi yang sedang diikuti. Nonaktifkan jika tidak sedang ikut campaign berbayar.</td>
+      </tr>
+      <tr>
+        <td>Biaya Administrasi / Checkout</td>
+        <td><strong>TRX Fee</strong></td>
+        <td>Seller Centre &rarr; Keuangan &rarr; Biaya Transaksi. Biaya tetap per pesanan, nilainya bisa berbeda per metode pembayaran pembeli.</td>
+      </tr>
+      <tr>
+        <td>Voucher Toko yang ditanggung seller</td>
+        <td><strong>Voucher %</strong></td>
+        <td>Sesuai nilai voucher yang kamu buat sendiri di Seller Centre &rarr; Voucher Toko Saya.</td>
+      </tr>
+      <tr>
+        <td>Diskon produk yang ditanggung seller</td>
+        <td><strong>Discount %</strong></td>
+        <td>Sesuai besaran diskon yang kamu atur pada listing produk.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Cara Mengisi Parameter untuk Shopee</h3>
+  <ol class="steps">
+    <li>
+      <strong>Buka halaman Biaya Layanan di Seller Centre</strong>
+      Masuk ke Shopee Seller Centre &rarr; Keuangan &rarr; Biaya Layanan. Pilih kategori produk yang paling banyak kamu jual. Catat persentase Biaya Layanan untuk kategori tersebut, lalu masukkan ke parameter <strong>Layanan %</strong>.
+    </li>
+    <li>
+      <strong>Cek apakah tokomu ikut program Gratis Ongkir</strong>
+      Buka Seller Centre &rarr; Program &rarr; Gratis Ongkir Xtra. Jika terdaftar dan aktif, masukkan persentase subsidi yang tertera ke parameter <strong>Ongkir Xtra %</strong>. Jika tidak ikut program ini, nonaktifkan chip Ongkir Xtra di calculator.
+    </li>
+    <li>
+      <strong>Aktifkan Promo Xtra % hanya saat ikut campaign berbayar</strong>
+      Jika tokomu sedang terdaftar di Flash Sale, Shopee Sale, atau program campaign berbayar lainnya, masukkan persentase biaya program tersebut ke <strong>Promo Xtra %</strong>. Nonaktifkan saat tidak ikut program apapun.
+    </li>
+    <li>
+      <strong>Isi TRX Fee dari riwayat transaksi</strong>
+      Cek detail pemotongan di beberapa transaksi terakhir melalui Seller Centre &rarr; Keuangan &rarr; Riwayat Transaksi. Lihat komponen "Biaya Administrasi" atau "Biaya Checkout" dan masukkan angkanya ke <strong>TRX Fee</strong>.
+    </li>
+    <li>
+      <strong>Isi Voucher % dan Discount % sesuai promo aktif</strong>
+      Masukkan nilai voucher toko dan diskon produk yang sedang berjalan. Jika tidak ada promo aktif, set keduanya ke 0 atau nonaktifkan.
+    </li>
+  </ol>
+
+  <!-- AI INSIGHT -->
+  <h2 id="ai-insight">AI Insight</h2>
+  <p>AI Insight adalah fitur pencarian kategori Shopee yang terintegrasi langsung ke dalam calculator. Daripada membuka Seller Centre secara manual untuk mencari biaya per kategori produk, kamu cukup mengetik nama produk di panel AI Insight dan sistem akan mencocokkan ke kategori Shopee yang paling relevan beserta estimasi biaya-biayanya.</p>
+
+  <div class="callout info">
+    <strong>Pencarian berjalan sepenuhnya lokal</strong>
+    AI Insight tidak mengirim data ke server manapun dan tidak memerlukan koneksi internet. Semua pencocokan dilakukan secara instan di browser menggunakan dataset kategori Shopee yang sudah tertanam di dalam aplikasi.
+  </div>
+
+  <h3>Cara Membuka AI Insight</h3>
+  <p>Klik tombol <strong>AI Insight</strong> di header halaman utama calculator, tepat di sebelah kiri tombol List. Tombol ini terlihat menonjol dengan tampilan menyala — mudah ditemukan di mana pun kamu berada di halaman.</p>
+
+  <h3>Cara Menggunakan</h3>
+  <ol class="steps">
+    <li>
+      <strong>Ketik nama produk yang ingin kamu cari</strong>
+      Masukkan nama produk dalam bahasa Indonesia sehari-hari. Kamu tidak perlu menggunakan istilah kategori Shopee yang formal. Contoh: "cover mobil", "kopi sachet", "sepatu lari", "softlens", "charger hp", atau "sufor bayi" semuanya akan dikenali dengan benar.
+    </li>
+    <li>
+      <strong>Pilih tipe toko</strong>
+      Di bagian atas panel hasil, pilih antara <strong>Non-Star / Star</strong> atau <strong>Shopee Mall</strong> sesuai dengan tipe tokomu. Biaya Layanan (Service Fee) berbeda antara dua tipe ini — Mall umumnya lebih tinggi.
+    </li>
+    <li>
+      <strong>Pilih ukuran produk untuk Ongkir Xtra</strong>
+      Pilih antara <strong>Biasa</strong> atau <strong>Khusus</strong>. Kategori "Khusus" berlaku untuk produk dengan berat atau volume di atas batas tertentu sesuai ketentuan program Gratis Ongkir Xtra Shopee. Jika ragu, pilih Biasa.
+    </li>
+    <li>
+      <strong>Pilih hasil yang paling cocok dan klik "Terapkan ke parameter"</strong>
+      Setiap kartu hasil menampilkan nama subkategori, besaran Biaya Layanan, Ongkir Xtra, dan Promo Xtra. Pilih kartu yang paling sesuai dengan produkmu, lalu klik tombol <strong>Terapkan ke parameter</strong>. Calculator akan langsung mengisi ketiga parameter tersebut secara otomatis.
+    </li>
+  </ol>
+
+  <h3>Membaca Hasil Pencarian</h3>
+  <p>Setiap kartu hasil menampilkan tiga komponen biaya:</p>
+  <table>
+    <thead>
+      <tr>
+        <th>Komponen</th>
+        <th>Keterangan</th>
+        <th>Catatan</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Biaya Layanan</strong></td>
+        <td>Service fee yang dipotong Shopee per penjualan, berbeda per kategori dan tipe toko</td>
+        <td>Berubah sesuai toggle Non-Star/Star vs Mall</td>
+      </tr>
+      <tr>
+        <td><strong>Ongkir Xtra</strong></td>
+        <td>Subsidi ongkir yang ditanggung seller jika ikut program Gratis Ongkir Xtra</td>
+        <td>Berubah sesuai toggle Biasa vs Khusus</td>
+      </tr>
+      <tr>
+        <td><strong>Promo Xtra</strong></td>
+        <td>Biaya program kampanye promosi berbayar Shopee, berlaku flat untuk semua kategori</td>
+        <td>Nilai sama untuk semua kategori dan tipe toko</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout danger">
+    <strong>Data AI Insight adalah estimasi berdasarkan tabel resmi Shopee</strong>
+    Angka yang ditampilkan bersumber dari tabel Biaya Layanan, Ongkir Xtra, dan Promo Xtra yang dipublikasikan Shopee di Seller Centre. Shopee dapat mengubah tarif sewaktu-waktu tanpa pemberitahuan. Gunakan AI Insight sebagai titik awal yang cepat, lalu verifikasi angka final di Seller Centre &rarr; Keuangan &rarr; Biaya Layanan sebelum menggunakannya untuk keputusan pricing yang penting.
+  </div>
+
+  <h3>Kapan Menggunakan AI Insight vs Cek Manual</h3>
+  <p>Gunakan AI Insight saat kamu ingin mengisi parameter Shopee dengan cepat dan belum tahu kategori yang tepat untuk produkmu. Gunakan cek manual di Seller Centre saat kamu ingin memastikan tarif terbaru, atau saat berhadapan dengan produk di kategori yang sangat spesifik dan memiliki tarif berbeda antar subkategori.</p>
+
+  <!-- 9. FILTER, CARI, URUTKAN -->
+  <h2 id="tools">Filter, Cari, dan Urutkan</h2>
+
+  <h3>Pencarian Produk</h3>
+  <p>Kolom pencarian di toolbar menerima nama produk atau SKU. Pencarian berjalan secara real-time saat kamu mengetik. Klik ikon X di dalam kolom pencarian untuk menghapus filter pencarian.</p>
+
+  <h3>Filter Status</h3>
+  <p>Klik tombol <strong>Filter</strong> untuk memunculkan popup filter berdasarkan status produk. Tersedia opsi: Semua, Untung (Biru), Impas (Hijau), dan Rugi (Merah). Filter berguna untuk dengan cepat mengidentifikasi produk yang bermasalah tanpa harus menelusuri seluruh daftar.</p>
+
+  <h3>Pengurutan</h3>
+  <p>Klik tombol <strong>Urutkan</strong> untuk memilih kolom pengurutan dan arahnya (naik atau turun). Kolom yang tersedia untuk pengurutan adalah Nama Produk, HPP, Set Price, Margin %, dan ROAS.</p>
+
+  <h3>Hapus Massal</h3>
+  <p>Centang checkbox di kolom paling kiri untuk memilih beberapa produk. Setelah minimal satu produk dipilih, toolbar hapus massal akan muncul di bagian atas. Klik tombol <strong>Hapus</strong> di toolbar tersebut untuk menghapus semua produk yang dipilih sekaligus. Tindakan ini memerlukan konfirmasi sebelum dieksekusi.</p>
+
+  <!-- 10. IMPORT & EXPORT -->
+  <h2 id="import-export">Import dan Export</h2>
+
+  <h3>Export ke Excel</h3>
+  <p>Klik tombol <strong>Export Excel</strong> di toolbar untuk mengunduh seluruh data toko aktif (semua sheet) ke dalam file Excel (.xlsx). File ini berisi semua kolom termasuk hasil kalkulasi Set Price per produk.</p>
+
+  <h3>Import dari Excel atau CSV</h3>
+  <p>Klik tombol <strong>Upload File</strong> untuk mengimpor data produk dari file Excel atau CSV. Data yang diimpor akan ditambahkan ke sheet yang sedang aktif.</p>
+
+  <div class="callout info">
+    <strong>Format Import</strong>
+    File yang diimpor minimal harus memiliki kolom nama produk dan HPP. Kolom lain seperti SKU, Margin, dan parameter biaya akan mengikuti nilai global jika tidak ada di file.
+  </div>
+
+  <!-- 11. TAMPILAN LIST & SPREADSHEET -->
+  <h2 id="views">Tampilan List dan Spreadsheet</h2>
+  <p>Calculator memiliki dua tampilan yang bisa dipilih melalui tombol <strong>List</strong> dan <strong>Spreadsheet</strong> di pojok kanan atas.</p>
+
+  <h3>Tampilan Spreadsheet</h3>
+  <p>Tampilan default yang menampilkan semua kolom dalam format tabel horizontal. Cocok untuk melihat dan mengedit banyak parameter produk sekaligus. Karena ada banyak kolom, tabel bisa di-scroll ke kanan.</p>
+
+  <h3>Tampilan List</h3>
+  <p>Tampilan yang lebih ringkas, menampilkan daftar produk dengan kolom-kolom paling penting saja. Saat kamu mengklik salah satu baris produk, panel detail akan muncul di sisi kanan layar. Panel ini menampilkan semua parameter produk dan memungkinkan kamu mengedit secara lengkap tanpa harus melihat tabel penuh. Cocok untuk memantau produk secara cepat atau menggunakan perangkat dengan layar lebih kecil.</p>
+
+  <!-- 12. FAQ -->
+  <h2 id="faq">Pertanyaan Umum</h2>
+
+  <h3>Set Price terlihat terlalu tinggi. Apakah ada yang salah?</h3>
+  <p>Belum tentu salah. Set Price yang tinggi bisa disebabkan oleh kombinasi biaya yang besar, misalnya Margin tinggi + Biaya Layanan tinggi + ROAS rendah (biaya iklan besar) + Discount + Voucher yang ditanggung seller. Coba turunkan ROAS (artinya anggaran iklan lebih sedikit), atau kurangi diskon yang ditanggung, dan perhatikan perubahan pada Set Price.</p>
+
+  <h3>Apa perbedaan Discount % dengan Voucher %?</h3>
+  <p>Keduanya adalah subsidi yang ditanggung penjual, tapi mekanismenya berbeda di marketplace. Discount biasanya mengacu pada diskon langsung yang tertera di harga listing (harga coret), sedangkan Voucher adalah kode atau kupon yang bisa diklaim pembeli. Di calculator, keduanya sama-sama mengurangi nilai yang diterima penjual dan diperhitungkan dalam kalkulasi Harga Promo.</p>
+
+  <h3>Mengapa Marketing % dihitung dengan faktor 1.11?</h3>
+  <p>Karena biaya iklan di marketplace dikenakan PPN 11%. Jika ROAS kamu 10, artinya untuk menghasilkan Rp 10 penjualan kamu membelanjakan Rp 1 iklan. Tapi biaya iklan Rp 1 ini belum termasuk PPN, sehingga yang benar-benar kamu bayar adalah Rp 1,11. Faktor 1.11 memperhitungkan PPN ini agar hasil kalkulasi akurat.</p>
+
+  <h3>Kapan sebaiknya menggunakan Toko yang berbeda, bukan Sheet yang berbeda?</h3>
+  <p>Gunakan <strong>Toko berbeda</strong> jika parameter biaya layanan platform berbeda secara signifikan, misalnya toko Regular Shopee dan toko Star Seller punya Biaya Layanan yang berbeda. Gunakan <strong>Sheet berbeda</strong> di dalam satu toko jika hanya mengorganisir produk berdasarkan kategori tapi biayanya sama.</p>
+
+  <h3>Data saya hilang setelah refresh browser. Apa yang harus dilakukan?</h3>
+  <p>Data tersimpan secara otomatis di server (cloud) setiap kali ada perubahan. Jika data hilang setelah refresh, kemungkinan ada masalah koneksi saat menyimpan. Coba login ulang — data seharusnya pulih dari server. Indikator <strong>Auto-sync: Online</strong> di pojok kanan bawah menunjukkan status koneksi penyimpanan.</p>
+
+  <h3>Bagaimana cara mengganti nama toko atau sheet?</h3>
+  <p>Untuk toko: klik ganda nama toko di sidebar kiri. Untuk sheet: klik ganda tab sheet di bagian bawah toolbar. Input langsung bisa diedit di tempat (inline edit).</p>
+
+  <h3>Berapa batas produk yang bisa dimasukkan?</h3>
+  <p>Setiap sheet dapat menampung hingga <strong>500 baris produk</strong>, dengan tampilan 100 baris per halaman. Setiap toko dapat memiliki hingga 3 sheet, sehingga satu toko bisa menampung hingga 1.500 produk. Dengan 3 toko, total maksimum adalah 4.500 produk.</p>
+
+  <hr />
+  <p style="font-size:13px; color: var(--ink-3); text-align: center; margin-top: 32px;">
+    Pricing Calculator &mdash; 4.0 Media &mdash; Dokumen ini dibuat Juni 2026
+  </p>
+
+</main>
+</div>
+
+<script>
+// Highlight active nav link on scroll
+const sections = document.querySelectorAll('h2[id]');
+const navLinks  = document.querySelectorAll('nav a[href^="#"]');
+
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      navLinks.forEach(a => a.classList.remove('active'));
+      const active = document.querySelector(`nav a[href="#${entry.target.id}"]`);
+      if (active) active.classList.add('active');
+    }
+  });
+}, { rootMargin: '-20% 0px -75% 0px' });
+
+sections.forEach(s => observer.observe(s));
+
+// Smooth scroll
+navLinks.forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    const target = document.querySelector(a.getAttribute('href'));
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+</script>
+
+</body>
+</html>
